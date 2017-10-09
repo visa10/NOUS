@@ -4,9 +4,8 @@ import "../base/Ownable.sol";
 import "../lib/SafeMath.sol";
 import '../token/MintableToken.sol';
 import '../NOUSToken.sol';
-import './BonusRate.sol';
 
-contract BaseContract is Ownable, BonusRate {
+contract BaseContract is Ownable {
 
 	/**** Libs *****************/
 
@@ -34,11 +33,20 @@ contract BaseContract is Ownable, BonusRate {
 	mapping (address => SalesAgent) salesAgents; // Our contract addresses of our sales contracts
 	address[] private salesAgentsAddresses; // Keep an array of all our sales agent addresses for iteration
 
+
+	struct BonusRateStruct {
+		uint256 period; // in week rate
+		uint256 rate;
+	}
+
 	struct SalesAgent {                     // These are contract addresses that are authorised to mint tokens
 		address saleContractAddress;        // Address of the contract
 		bytes32 saleContractType;           // Type of the contract ie. presale, crowdsale
 		uint256 tokensLimit;                // The maximum amount of tokens this sale contract is allowed to distribute
 		uint256 tokensMinted;               // The current amount of tokens minted by this agent
+		uint256 rate;						// default rate
+		uint256 targetEthMax;               // The max amount of ether the agent is allowed raise
+		uint256 targetEthMin;               // The min amount of ether to raise to consider this contracts sales a success
 		uint256 minDeposit;                 // The minimum deposit amount allowed
 		uint256 maxDeposit;                 // The maximum deposit amount allowed
 		uint256 startTime;                  // The start time (unix format) when allowed to mint tokens
@@ -46,9 +54,11 @@ contract BaseContract is Ownable, BonusRate {
 		bool isFinalized;                   // Has this sales contract been completed and the ether sent to the deposit address?
 		bool exists;                        // Check to see if the mapping exists
 		bool isLastSale; 					// Last sale
-		mapping(uint256 => BonusRateStruct[]) bonusRates; // if one bonus is default
-		uint256 bonusRatesIndex;
+		uint256[] bonusRatesIndex;			// index rates
+		mapping (uint256 => BonusRateStruct) bonusRates; // if one bonus is default
 	}
+
+	event SaleFinalised(address _agent, address _address, uint256 _value);
 
 
 	/// @dev Only allow access from the latest version of a sales contract
@@ -116,6 +126,7 @@ contract BaseContract is Ownable, BonusRate {
 		newSalesAgent.isFinalized = false;
 		newSalesAgent.exists = true;
 		newSalesAgent.isLastSale = _isLastSale; // after sale start global finalize
+		//newSalesAgent.bonusRates = new BonusRateStruct[](0); // after sale start global finalize
 
 		salesAgents[_saleAddress] = newSalesAgent;
 
@@ -123,7 +134,5 @@ contract BaseContract is Ownable, BonusRate {
 		salesAgentsAddresses.push(_saleAddress);
 	}
 
-	function setBonusRate(address _saleAgent){
 
-	}
 }

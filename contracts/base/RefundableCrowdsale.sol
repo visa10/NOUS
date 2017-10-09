@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import './RefundVault.sol';
 import './Crowdsale.sol';
 
+
 /**
  * @title RefundableCrowdsale
  * @dev Extension of Crowdsale contract that adds a funding goal, and
@@ -36,7 +37,7 @@ contract RefundableCrowdsale is Crowdsale {
 
 	// if crowdsale is unsuccessful, investors can claim refunds here
 	function claimRefund() public {
-		require(isFinalized); // if finalized global
+		require(isGlobalFinalized); // if finalized global
 		require(!goalReached());
 
 		vault.refund(msg.sender);
