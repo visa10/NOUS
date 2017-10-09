@@ -30,6 +30,18 @@ contract BaseContract is Ownable {
 	// 5% Advisors, Grants, Partnerships  Advisors tokens are locked for 2 months and distributed fully.
 	address advisersAddress;
 
+	mapping (address => Bounty) bountyPercent;
+	address[] paymentIndex;
+
+	struct Bounty {
+		bytes32 name,
+		address wallet, // wallet address
+		uint256 delay, // delay to payment in month
+		uint256 periodForPay,
+		uint256 percentForPay,
+		bool paymentDelay,
+		bool payment
+	}
 
 	uint256 public totalSupplyCap; // 777 Million tokens Capitalize max count NOUS tokens
 	uint256 public availablePurchase; // 543 900 000 tokens  Available for purchase

@@ -160,6 +160,26 @@ contract Crowdsale is BaseFunctions {
 		//todo finalize NOUSToken contract
 	}
 
+	function givOutBonus(){
+		require(salesAgents[msg.sender].saleContractType == 'crowdsale');
+		require(salesAgents[msg.sender].endTime > now);
+
+		uint256 totalSupply = tokens.totalSupply;
+		for (uint256 i = 0; i < paymentIndex.length; i++ ){
+			Bounty pay = bountyPercent[paymentIndex[i]];
+			uint256 dateEndDelay = now;
+
+			for (uint256 p; p < pay.delay; p++){
+				dateEndDelay = dateEndDelay + (1 month);
+			}
+
+			/*if (now <= dateEndDelay){
+				tokens.mint(pay.address)
+			}*/
+		}
+
+	}
+
 
 
 
