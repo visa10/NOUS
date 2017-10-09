@@ -6,7 +6,6 @@ contract BaseFunctions is BaseContract {
 
 
 
-
 	/// @dev addBonusRate adding bonuses foe weeks period
 	/// @param _salesAgentAddress the address of the token sale agent contract
 	/// @param _period array periods for bonus
@@ -54,49 +53,7 @@ contract BaseFunctions is BaseContract {
 		return (periods, rates);
 	}
 
-	/// @dev Returns true if this sales contract has finalised
-	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractIsFinalised(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(bool) {
-		return salesAgents[_salesAgentAddress].isFinalized;
-	}
 
-
-	/// @dev Returns the min target amount of ether the contract wants to raise
-	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractTargetEtherMin(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-		return salesAgents[_salesAgentAddress].targetEthMin;
-	}
-
-	/// @dev Returns the max target amount of ether the contract can raise
-	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-		return salesAgents[_salesAgentAddress].targetEthMax;
-	}
-
-
-    /// @dev Returns the start block for the sale agent
-    /// @param _salesAgentAddress The address of the token sale agent contract
-    function getSaleContractStartTime(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-        return salesAgents[_salesAgentAddress].startTime;
-    }
-
-    /// @dev Returns the start block for the sale agent
-    /// @param _salesAgentAddress The address of the token sale agent contract
-    function getSaleContractEndTime(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-        return salesAgents[_salesAgentAddress].endTime;
-    }
-
-    /// @dev Returns the max tokens for the sale agent
-	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractTokensLimit(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-		return salesAgents[_salesAgentAddress].tokensLimit;
-	}
-
-	/// @dev Returns the token total currently minted by the sale agent
-	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractTokensMinted(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-		return salesAgents[_salesAgentAddress].tokensMinted;
-	}
 
 
 

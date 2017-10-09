@@ -93,7 +93,7 @@ contract Crowdsale is BaseFunctions {
 			assert(!isGlobalFinalized);
 
 			globalFinalization();
-			isGlobalFinalized= true;
+			isGlobalFinalized = true;
 
 			GlobalFinalized();
 		}
@@ -133,7 +133,7 @@ contract Crowdsale is BaseFunctions {
 	* @param _accountHolder user address
 	* @param _amountOf balance to send out
 	*/
-	function deliverTokenToClient(address _accountHolder, uint256 _amountOf) internal isSalesContract(msg.sender) {
+	function deliverTokenToClient(address _accountHolder, uint256 _amountOf) isSalesContract(msg.sender) public returns(bool){
 		require(_accountHolder != 0x0);
 		require(_amountOf > 0);
 		require(salesAgents[msg.sender].isFinalized == false);
@@ -143,6 +143,7 @@ contract Crowdsale is BaseFunctions {
 		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(_amountOf);
 
 		TokenPurchase(msg.sender, _accountHolder, 0, _amountOf);
+		return true;
 	}
 
 	/**

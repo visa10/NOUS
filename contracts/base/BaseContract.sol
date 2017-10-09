@@ -18,7 +18,20 @@ contract BaseContract is Ownable {
 
 	/**** Properties ***********/
 
-	uint256 public totalSupplyCap; // 777 Million tokens
+
+	// 3% Community, 2% Will Be Used To Cover Token Sale
+	address grantsAddress;
+
+	// 20% Will Be Retained by Nousplatform
+	// Nousplatform retained tokens are locked for the first 4 months, and will be vested over a period of 20 months total,
+	// 5% every month. The total vesting period is 24 months.
+	address teamAddress;
+
+	// 5% Advisors, Grants, Partnerships  Advisors tokens are locked for 2 months and distributed fully.
+	address advisersAddress;
+
+
+	uint256 public totalSupplyCap; // 777 Million tokens Capitalize max count NOUS tokens
 	uint256 public availablePurchase; // 543 900 000 tokens  Available for purchase
 	uint256 public targetEthMin; // minimum amount of funds to be raised in weis
 
@@ -134,5 +147,48 @@ contract BaseContract is Ownable {
 		salesAgentsAddresses.push(_saleAddress);
 	}
 
+	/// @dev Returns true if this sales contract has finalised
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractIsFinalised(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(bool) {
+		return salesAgents[_salesAgentAddress].isFinalized;
+	}
+
+
+	/// @dev Returns the min target amount of ether the contract wants to raise
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractTargetEtherMin(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].targetEthMin;
+	}
+
+	/// @dev Returns the max target amount of ether the contract can raise
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].targetEthMax;
+	}
+
+
+	/// @dev Returns the start block for the sale agent
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractStartTime(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].startTime;
+	}
+
+	/// @dev Returns the start block for the sale agent
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractEndTime(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].endTime;
+	}
+
+	/// @dev Returns the max tokens for the sale agent
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractTokensLimit(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].tokensLimit;
+	}
+
+	/// @dev Returns the token total currently minted by the sale agent
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractTokensMinted(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].tokensMinted;
+	}
 
 }
