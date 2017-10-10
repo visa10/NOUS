@@ -36,11 +36,12 @@ contract RefundableCrowdsale is Crowdsale {
 	}
 
 	// if crowdsale is unsuccessful, investors can claim refunds here
-	function claimRefund() public {
+	function claimRefund(address beneficiary) isSalesContract(msg.sender) public returns (uint256) {
 		require(isGlobalFinalized); // if finalized global
 		require(!goalReached());
 
-		vault.refund(msg.sender);
+		//token. TODO get token
+		return vault.refund(beneficiary);
 	}
 
 	// vault global finalization task, called when owner calls finalize()
@@ -54,6 +55,7 @@ contract RefundableCrowdsale is Crowdsale {
 		super.globalFinalization();
 	}
 
+	// todo max test
 	function goalReached() public constant returns (bool) {
 		return weiRaised >= targetEthMin;
 	}

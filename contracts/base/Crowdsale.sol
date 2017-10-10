@@ -2,6 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import './BaseFunctions.sol';
+import "../interfaces/SalesAgentInterface.sol";
 
 /**
  * @title Crowdsale
@@ -26,38 +27,43 @@ contract Crowdsale is BaseFunctions {
 
 	event GlobalFinalized();
 
-
-	// fallback function can be used to buy tokens
-	function () payable {
-		buyTokens(msg.sender);
-	}
-
-	// low level token purchase function
-	function buyTokens(address beneficiary) isSalesContract(msg.sender)  public payable returns(bool) {
+	function buyTokens(address beneficiary, uint256 tokens) isSalesContract(msg.sender) public payable returns(bool) {
 		require(beneficiary != 0x0);
-
-		uint256 weiAmount = msg.value;
-
-		//uint256 currentRate = getRate();
-
-		// calculate token amount to be created
-		uint256 tokens = weiAmount.mul(rate).div(1 ether);
-
-		//validate
-		require(validPurchase(tokens));
-
-		// update state
-		weiRaised = weiRaised.add(weiAmount);
+		require(msg.value > 0);
 
 		token.mint(beneficiary, tokens);
-		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(tokens);
-
-		TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
-
-		forwardFunds();
+		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(tokens); // increment tokensMinted
+		TokenPurchase(msg.sender, beneficiary, msg.value, tokens);
+		forwardFunds(); // transfer ETH to refund contract
+		weiRaised = weiRaised.add(msg.value); // increment wei Raised
 
 		return true;
 	}
+
+	// @dev Validate Mined tokens
+	function validPurchase(uint _tokens) isSalesContract(msg.sender) returns (bool) {
+		salesAgents[msg.sender].isFinalized == false // No minting if the sale contract has finalised
+		&& now > salesAgents[msg.sender].startTime
+		&& now < salesAgents[msg.sender].endTime // within time
+		&& _tokens > 0 // non zero
+		&& salesAgents[msg.sender].tokensLimit >= salesAgents[msg.sender].tokensMinted.add(_tokens) // within Tokens mined
+		&& totalSupplyCap >= token.totalSupply().add(_tokens);
+	}
+
+	// @dev General validation for a sales agent contract receiving a contribution, additional validation can be done in the sale contract if required
+	// @param _value The value of the contribution in wei
+	// @return A boolean that indicates if the operation was successful.
+	function validateContribution(uint256 _value) isSalesContract(msg.sender) returns (bool) {
+		_value > 0
+		&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
+		&& salesAgents[msg.sender].isFinalized == false
+		&& now > salesAgents[msg.sender].startTime  // Check started
+		&& now < salesAgents[msg.sender].endTime
+		&& _value >= salesAgents[msg.sender].minDeposit // Is it above the min deposit amount?
+		&& _value <= salesAgents[msg.sender].maxDeposit
+		&& weiRaised.add(_value) <= targetEthMax; // Does this deposit put it over the max target ether for the sale contract?
+	}
+
 
 	// send ether to the fund collection wallet
 	// override to create custom fund forwarding mechanisms
@@ -65,31 +71,21 @@ contract Crowdsale is BaseFunctions {
 		wallet.transfer(msg.value);
 	}
 
-	// @return true if the transaction can buy tokens
-	function validPurchase(uint _tokens) internal constant returns (bool) {
-			now >= salesAgents[msg.sender].startTime && now <= salesAgents[msg.sender].endTime // within time
-			&& salesAgents[msg.sender].isFinalized == false // No minting if the sale contract has finalised
-			&& weiRaised.add(msg.value) <= totalSupplyCap // within cap
-			&& msg.value > 0 // non zero
-			&& salesAgents[msg.sender].tokensLimit >= salesAgents[msg.sender].tokensMinted.add(_tokens); // within Tokens mined
-	}
-
 	/**
 	* @dev Must be called after crowdsale ends, to do some extra finalization
 	* work. Calls the contract's finalization function.
 	*/
-	function finalize() onlyOwner {
-		require(!salesAgents[msg.sender].isFinalized);
+	function finalize(address _saleAgentAddress) onlyOwner {
+		require(!salesAgents[_saleAgentAddress].isFinalized);
 		require(hasEnded());
 
-		finalization();
+		salesAgents[_saleAgentAddress].isFinalized = true;
 
 		Finalized();
 
-		salesAgents[msg.sender].isFinalized = true;
-
 		// if is last sale, start global finalization transfer eth, stop mine
 		if (salesAgents[msg.sender].isLastSale) {
+
 			assert(!isGlobalFinalized);
 
 			globalFinalization();
@@ -101,10 +97,22 @@ contract Crowdsale is BaseFunctions {
 
 	// @return true if crowdsale event has ended and call super.hasEnded
 	function hasEnded() public constant returns (bool) {
-
 		salesAgents[msg.sender].tokensMinted >= salesAgents[msg.sender].tokensLimit //capReachedToken
-		&& weiRaised >= totalSupplyCap //capReachedWei
-		&& now > salesAgents[msg.sender].endTime; //timeAllow
+		|| weiRaised >= targetEthMax //capReachedWei
+		|| totalSupplyCap >= token.totalSupply()
+		|| now > salesAgents[msg.sender].endTime; //timeAllow
+	}
+
+	/**
+	* @dev Add global finalization logic after all sales agents
+	*/
+	function globalFinalization() internal {
+		//todo finalize NOUSToken contract
+
+
+		//token.mint(this, );
+
+		token.finishMinting();
 	}
 
 	/**
@@ -113,15 +121,14 @@ contract Crowdsale is BaseFunctions {
 	* @param _batchOfAddresses list of addresses
 	* @param _amountOf matching list of address balances
 	*/
-	function deliverPresaleTokens(address[] _batchOfAddresses, uint256[] _amountOf)
-		external isSalesContract(msg.sender)  returns (bool success) {
-
-		require(now < salesAgents[msg.sender].startTime);
+	function deliverPresaleTokens(address _salesAgent, address[] _batchOfAddresses, uint256[] _amountOf)
+		external onlyOwner returns (bool success) {
+		//require(now < salesAgents[msg.sender].startTime);
+		//require(salesAgents[msg.sender].saleContractType == 'presale');
 		require(_batchOfAddresses.length == _amountOf.length);
-		require(salesAgents[msg.sender].saleContractType == 'presale');
 
 		for (uint256 i = 0; i < _batchOfAddresses.length; i++) {
-			deliverTokenToClient(_batchOfAddresses[i], _amountOf[i]);
+			deliverTokenToClient(_salesAgent, _batchOfAddresses[i], _amountOf[i]);
 		}
 		return true;
 	}
@@ -133,11 +140,11 @@ contract Crowdsale is BaseFunctions {
 	* @param _accountHolder user address
 	* @param _amountOf balance to send out
 	*/
-	function deliverTokenToClient(address _accountHolder, uint256 _amountOf) isSalesContract(msg.sender) public returns(bool){
+	function deliverTokenToClient(address _salesAgent, address _accountHolder, uint256 _amountOf) onlyOwner public returns(bool){
 		require(_accountHolder != 0x0);
 		require(_amountOf > 0);
-		require(salesAgents[msg.sender].isFinalized == false);
-		require(salesAgents[msg.sender].tokensLimit >= salesAgents[msg.sender].tokensMinted.add(_amountOf));
+		require(salesAgents[_salesAgent].isFinalized == false);
+		require(salesAgents[_salesAgent].tokensLimit >= salesAgents[_salesAgent].tokensMinted.add(_amountOf));
 
 		token.mint(_accountHolder, _amountOf);
 		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(_amountOf);
@@ -146,21 +153,7 @@ contract Crowdsale is BaseFunctions {
 		return true;
 	}
 
-	/**
-	* @dev Can be overridden to add finalization logic. The overriding function
-	* should call super.finalization() to ensure the chain of finalization is
-	* executed entirely.
-	*/
-	function finalization() internal {}
-
-	/**
-	* @dev Add global finalization logic after all sales agents
-	*/
-	function globalFinalization() internal {
-		//todo finalize NOUSToken contract
-	}
-
-	function payBonus() public isSalesContract(msg.sender) {
+	function payDelayBonuses() public isSalesContract(msg.sender) {
 		require(salesAgents[msg.sender].saleContractType == 'reserve');
 		require(salesAgents[msg.sender].endTime > now);
 

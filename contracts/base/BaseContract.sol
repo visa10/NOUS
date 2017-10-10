@@ -2,8 +2,9 @@ pragma solidity ^0.4.4;
 
 import "../base/Ownable.sol";
 import "../lib/SafeMath.sol";
-import '../token/MintableToken.sol';
-import '../NOUSToken.sol';
+import "../token/MintableToken.sol";
+import "../NOUSToken.sol";
+
 
 contract BaseContract is Ownable {
 
@@ -17,7 +18,6 @@ contract BaseContract is Ownable {
 	uint256 public exponent = 10**uint256(decimals);
 
 	/**** Properties ***********/
-
 
 	// 3% Community, 2% Will Be Used To Cover Token Sale
 	address grantsAddress;
@@ -45,12 +45,14 @@ contract BaseContract is Ownable {
 
 	uint256 public totalSupplyCap; // 777 Million tokens Capitalize max count NOUS tokens
 	uint256 public availablePurchase; // 543 900 000 tokens  Available for purchase
+	uint256 public targetEthMax;               // The max amount of ether the agent is allowed raise
 	uint256 public targetEthMin; // minimum amount of funds to be raised in weis
 
 	uint256 public rate; // todo  rate is bonus
 
-	address public wallet; // address where funds are collected
+	address public wallet; // address where funds are collected Deposit address
 	uint256 public weiRaised; // amount of raised money in wei
+
 	bool isGlobalFinalized = false; // global finalization
 
 	/*** Sale Addresses *********/
@@ -70,8 +72,6 @@ contract BaseContract is Ownable {
 		uint256 tokensLimit;                // The maximum amount of tokens this sale contract is allowed to distribute
 		uint256 tokensMinted;               // The current amount of tokens minted by this agent
 		uint256 rate;						// default rate
-		uint256 targetEthMax;               // The max amount of ether the agent is allowed raise
-		uint256 targetEthMin;               // The min amount of ether to raise to consider this contracts sales a success
 		uint256 minDeposit;                 // The minimum deposit amount allowed
 		uint256 maxDeposit;                 // The maximum deposit amount allowed
 		uint256 startTime;                  // The start time (unix format) when allowed to mint tokens
@@ -84,7 +84,6 @@ contract BaseContract is Ownable {
 	}
 
 	event SaleFinalised(address _agent, address _address, uint256 _value);
-
 
 	/// @dev Only allow access from the latest version of a sales contract
 	modifier isSalesContract(address _sender) {
@@ -159,6 +158,15 @@ contract BaseContract is Ownable {
 		salesAgentsAddresses.push(_saleAddress);
 	}
 
+	/// @dev TODO Verifies if the current address matches the depositAddress
+	/// @param _verifyAddress The address to verify it matches the depositAddress given for the sales agent
+	/*function setSaleContractDepositAddressVerified(address _verifyAddress) isSalesContract(msg.sender) public {
+		// Check its verified
+		assert(salesAgents[msg.sender].depositAddress == _verifyAddress && _verifyAddress != 0x0);
+		// Ok set it now
+		salesAgents[msg.sender].depositAddressCheckedIn = true;
+	}*/
+
 	/// @dev Returns true if this sales contract has finalised
 	/// @param _salesAgentAddress The address of the token sale agent contract
 	function getSaleContractIsFinalised(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(bool) {
@@ -169,13 +177,13 @@ contract BaseContract is Ownable {
 	/// @dev Returns the min target amount of ether the contract wants to raise
 	/// @param _salesAgentAddress The address of the token sale agent contract
 	function getSaleContractTargetEtherMin(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-		return salesAgents[_salesAgentAddress].targetEthMin;
+		return targetEthMin;
 	}
 
 	/// @dev Returns the max target amount of ether the contract can raise
 	/// @param _salesAgentAddress The address of the token sale agent contract
 	function getSaleContractTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
-		return salesAgents[_salesAgentAddress].targetEthMax;
+		return targetEthMax;
 	}
 
 
@@ -201,6 +209,12 @@ contract BaseContract is Ownable {
 	/// @param _salesAgentAddress The address of the token sale agent contract
 	function getSaleContractTokensMinted(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
 		return salesAgents[_salesAgentAddress].tokensMinted;
+	}
+
+	/// @dev Returns the token total currently minted by the sale agent
+	/// @param _salesAgentAddress The address of the token sale agent contract
+	function getSaleContractTokensRate(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+		return salesAgents[_salesAgentAddress].rate;
 	}
 
 }
