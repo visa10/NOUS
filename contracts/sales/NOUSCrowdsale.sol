@@ -65,13 +65,11 @@ contract NOUSCrowdsale is SalesAgent, Ownable {
 
 	/// @dev get period rates
 	function getBonusRate() internal returns(uint256) {
-
 		for (uint256 i = 0; i < bonusRates.length; i++){
 			uint256 toPeriod = nousTokenSale.getSaleContractStartTime(this);
 			for (uint256 w = 0; w < bonusRates[i].period; w++) {
 				toPeriod = toPeriod + (1 weeks);
 			}
-
 			if (now < toPeriod){
 				return bonusRates[i].rate;
 			}

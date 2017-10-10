@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-import './BaseFunctions.sol';
+import './BaseContract.sol';
 import "../interfaces/SalesAgentInterface.sol";
 
 /**
@@ -12,7 +12,7 @@ import "../interfaces/SalesAgentInterface.sol";
  * on a token per ETH rate. Funds collected are forwarded to a wallet
  * as they arrive.
  */
-contract Crowdsale is BaseFunctions {
+contract Crowdsale is BaseContract {
 
 	/**
 	* event for token purchase logging
