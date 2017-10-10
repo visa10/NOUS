@@ -34,13 +34,13 @@ contract BaseContract is Ownable {
 	address[] paymentIndex;
 
 	struct Bounty {
-		bytes32 name,
-		address wallet, // wallet address
-		uint256 delay, // delay to payment in month
-		uint256 periodForPay,
-		uint256 percentForPay,
-		bool paymentDelay,
-		bool payment
+		bytes32 name;
+		address wallet; // wallet address
+		uint256 delay; // delay to payment in month
+		uint256 periodForPay;
+		uint256 percentForPay;
+		bool paymentDelay; // payment after delay
+		bool payment; //
 	}
 
 	uint256 public totalSupplyCap; // 777 Million tokens Capitalize max count NOUS tokens

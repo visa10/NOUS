@@ -160,22 +160,30 @@ contract Crowdsale is BaseFunctions {
 		//todo finalize NOUSToken contract
 	}
 
-	function givOutBonus(){
-		require(salesAgents[msg.sender].saleContractType == 'crowdsale');
+	function payBonus() public isSalesContract(msg.sender) {
+		require(salesAgents[msg.sender].saleContractType == 'reserve');
 		require(salesAgents[msg.sender].endTime > now);
 
-		uint256 totalSupply = tokens.totalSupply;
-		for (uint256 i = 0; i < paymentIndex.length; i++ ){
-			Bounty pay = bountyPercent[paymentIndex[i]];
-			uint256 dateEndDelay = now;
+		uint256 totalSupply = token.totalSupply();
 
-			for (uint256 p; p < pay.delay; p++){
-				dateEndDelay = dateEndDelay + (1 month);
+		for (uint256 i = 0; i < paymentIndex.length; i++ ){
+			Bounty bounty = bountyPercent[paymentIndex[i]];
+
+			if (bounty.paymentDelay == true){ //validate for payment
+				continue;
 			}
 
-			/*if (now <= dateEndDelay){
-				tokens.mint(pay.address)
-			}*/
+			uint256 dateEndDelay = salesAgents[msg.sender].startTime;
+
+			for (uint256 p; p < bounty.delay; p++){
+				dateEndDelay = dateEndDelay + (30 days);
+			}
+
+			if (now <= dateEndDelay) {
+				uint256 sumForPay = totalSupply.mul(bounty.percentForPay).div(100);
+				token.mint(bounty.wallet, sumForPay);
+				salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(sumForPay);
+			}
 		}
 
 	}
