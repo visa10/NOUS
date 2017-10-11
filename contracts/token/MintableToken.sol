@@ -19,7 +19,6 @@ contract MintableToken is StandardToken, Ownable {
 
   bool public mintingFinished = false;
 
-
   modifier canMint() {
     require(!mintingFinished);
     _;
@@ -39,13 +38,22 @@ contract MintableToken is StandardToken, Ownable {
     return true;
   }
 
-  /**
-   * @dev Function to stop minting new tokens.
-   * @return True if the operation was successful.
-   */
-  function finishMinting() onlyOwner public returns (bool) {
-    mintingFinished = true;
-    MintFinished();
-    return true;
-  }
+	/**
+	* @dev Function to stop minting new tokens.
+	* @return True if the operation was successful.
+	*/
+	function finishMinting() onlyOwner public returns (bool) {
+		mintingFinished = true;
+		MintFinished();
+		return true;
+	}
+
+	/**
+	* @dev allowed transfer
+	*/
+	function startTransfer() onlyOwner public returns (bool){
+		endICO = true;
+		TransferStart();
+		return true;
+	}
 }

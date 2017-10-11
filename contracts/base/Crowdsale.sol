@@ -23,18 +23,19 @@ contract Crowdsale is BaseContract {
 	*/
 	event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-	event Finalized();
-
-	event GlobalFinalized();
+	/// @dev this contact sale not payed/ Payed only forwardFunds TODO validate this
+	function() payable external {}
 
 	function buyTokens(address beneficiary, uint256 tokens) isSalesContract(msg.sender) public payable returns(bool) {
+		require(saleState == SaleState.Active); // if sale is frozen
 		require(beneficiary != 0x0);
-		require(msg.value > 0);
+		//require(msg.value > 0); // TODO validate
 
 		token.mint(beneficiary, tokens);
 		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(tokens); // increment tokensMinted
 		TokenPurchase(msg.sender, beneficiary, msg.value, tokens);
-		forwardFunds(); // transfer ETH to refund contract
+
+		forwardFunds(beneficiary); // transfer ETH to refund contract
 		weiRaised = weiRaised.add(msg.value); // increment wei Raised
 
 		return true;
@@ -64,55 +65,10 @@ contract Crowdsale is BaseContract {
 		&& weiRaised.add(_value) <= targetEthMax; // Does this deposit put it over the max target ether for the sale contract?
 	}
 
-
 	// send ether to the fund collection wallet
 	// override to create custom fund forwarding mechanisms
-	function forwardFunds() internal {
+	function forwardFunds(address _sender) internal {
 		wallet.transfer(msg.value);
-	}
-
-	/**
-	* @dev Must be called after crowdsale ends, to do some extra finalization
-	* work. Calls the contract's finalization function.
-	*/
-	function finalize(address _saleAgentAddress) onlyOwner {
-		require(!salesAgents[_saleAgentAddress].isFinalized);
-		require(hasEnded());
-
-		salesAgents[_saleAgentAddress].isFinalized = true;
-
-		Finalized();
-
-		// if is last sale, start global finalization transfer eth, stop mine
-		if (salesAgents[msg.sender].isLastSale) {
-
-			assert(!isGlobalFinalized);
-
-			globalFinalization();
-			isGlobalFinalized = true;
-
-			GlobalFinalized();
-		}
-	}
-
-	// @return true if crowdsale event has ended and call super.hasEnded
-	function hasEnded() public constant returns (bool) {
-		salesAgents[msg.sender].tokensMinted >= salesAgents[msg.sender].tokensLimit //capReachedToken
-		|| weiRaised >= targetEthMax //capReachedWei
-		|| totalSupplyCap >= token.totalSupply()
-		|| now > salesAgents[msg.sender].endTime; //timeAllow
-	}
-
-	/**
-	* @dev Add global finalization logic after all sales agents
-	*/
-	function globalFinalization() internal {
-		//todo finalize NOUSToken contract
-
-
-		//token.mint(this, );
-
-		token.finishMinting();
 	}
 
 	/**
@@ -122,7 +78,7 @@ contract Crowdsale is BaseContract {
 	* @param _amountOf matching list of address balances
 	*/
 	function deliverPresaleTokens(address _salesAgent, address[] _batchOfAddresses, uint256[] _amountOf)
-		external onlyOwner returns (bool success) {
+		external ownerOrSale returns (bool success) {
 		//require(now < salesAgents[msg.sender].startTime);
 		//require(salesAgents[msg.sender].saleContractType == 'presale');
 		require(_batchOfAddresses.length == _amountOf.length);
@@ -140,7 +96,7 @@ contract Crowdsale is BaseContract {
 	* @param _accountHolder user address
 	* @param _amountOf balance to send out
 	*/
-	function deliverTokenToClient(address _salesAgent, address _accountHolder, uint256 _amountOf) onlyOwner public returns(bool){
+	function deliverTokenToClient(address _salesAgent, address _accountHolder, uint256 _amountOf) ownerOrSale public returns(bool){
 		require(_accountHolder != 0x0);
 		require(_amountOf > 0);
 		require(salesAgents[_salesAgent].isFinalized == false);
@@ -153,7 +109,11 @@ contract Crowdsale is BaseContract {
 		return true;
 	}
 
-	function payDelayBonuses() public isSalesContract(msg.sender) {
+	function reserveBonuses() {
+
+	}
+
+	/*function payDelayBonuses() public isSalesContract(msg.sender) {
 		require(salesAgents[msg.sender].saleContractType == 'reserve');
 		require(salesAgents[msg.sender].endTime > now);
 
@@ -179,7 +139,7 @@ contract Crowdsale is BaseContract {
 			}
 		}
 
-	}
+	}*/
 
 
 

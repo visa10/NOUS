@@ -19,6 +19,14 @@ contract StandardToken is ERC20, BasicToken {
 
 	mapping (address => mapping (address => uint256)) allowed;
 
+	bool public endICO = false;
+
+	event TransferStart();
+
+	modifier canTransfer(){
+		require(endICO);
+		_;
+	}
 
 	/**
 	* @dev Transfer tokens from one address to another
@@ -26,7 +34,7 @@ contract StandardToken is ERC20, BasicToken {
 	* @param _to address The address which you want to transfer to
 	* @param _value uint256 the amount of tokens to be transferred
 	*/
-	function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+	function transferFrom(address _from, address _to, uint256 _value) canTransfer public returns (bool) {
 		require(_to != address(0));
 
 		uint256 _allowance = allowed[_from][msg.sender];
@@ -51,7 +59,7 @@ contract StandardToken is ERC20, BasicToken {
    * @param _spender The address which will spend the funds.
    * @param _value The amount of tokens to be spent.
    */
-	function approve(address _spender, uint256 _value) public returns (bool) {
+	function approve(address _spender, uint256 _value) canTransfer public returns (bool) {
 		allowed[msg.sender][_spender] = _value;
 		Approval(msg.sender, _spender, _value);
 		return true;
@@ -67,6 +75,7 @@ contract StandardToken is ERC20, BasicToken {
 	 * @param _extraData some extra information to send to the approved contract
 	 */
 	function approveAndCall(address _spender, uint256 _value, bytes _extraData)
+		canTransfer
 		public
 		returns (bool success) {
 		tokenRecipient spender = tokenRecipient(_spender);
@@ -82,7 +91,7 @@ contract StandardToken is ERC20, BasicToken {
 	* @param _spender address The address which will spend the funds.
 	* @return A uint256 specifying the amount of tokens still available for the spender.
 	*/
-	function allowance(address _owner, address _spender) public constant returns (uint256 remaining) {
+	function allowance(address _owner, address _spender) canTransfer public constant returns (uint256 remaining) {
 		return allowed[_owner][_spender];
 	}
 
@@ -93,6 +102,7 @@ contract StandardToken is ERC20, BasicToken {
 	* From MonolithDAO Token.sol
 	*/
 	function increaseApproval (address _spender, uint _addedValue)
+	  canTransfer
 	  returns (bool success) {
 		allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
 		Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
@@ -100,6 +110,7 @@ contract StandardToken is ERC20, BasicToken {
 	}
 
 	function decreaseApproval (address _spender, uint _subtractedValue)
+		canTransfer
 		returns (bool success) {
 		uint oldValue = allowed[msg.sender][_spender];
 		if (_subtractedValue > oldValue) {

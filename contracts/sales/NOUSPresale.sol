@@ -4,7 +4,7 @@ import "../base/SalesAgent.sol";
 import "../lib/SafeMath.sol";
 import "../NOUSSale.sol";
 
-contract NOUSPresale is SalesAgent, Ownable {
+contract NOUSPresale is SalesAgent {
 
   	using SafeMath for uint;
 
@@ -29,12 +29,11 @@ contract NOUSPresale is SalesAgent, Ownable {
 
 		if (!success) {
 			msg.sender.transfer(msg.value); // return back if not
-			TokenValidateRefund(msg.sender, msg.value);
+			TokenValidateRefund(this, msg.sender, msg.value);
 		} else {
-			TokenPurchase(msg.sender, msg.value, tokens);
+			TokenPurchase(this, msg.sender, msg.value, tokens);
 		}
 	}
-
 
 
 }

@@ -3,9 +3,9 @@ pragma solidity ^0.4.4;
 import "../base/SalesAgent.sol";
 import "../lib/SafeMath.sol";
 import "../NOUSSale.sol";
-import "../base/Ownable.sol";
 
-contract NOUSCrowdsale is SalesAgent, Ownable {
+
+contract NOUSCrowdsale is SalesAgent {
 
 	using SafeMath for uint;
 
@@ -51,6 +51,25 @@ contract NOUSCrowdsale is SalesAgent, Ownable {
 		}
 	}
 
+	/**
+		@dev computes the number of tokens that should be issued for a given contribution
+		@param _contribution    contribution amount
+		@return computed number of tokens
+	*/
+	/*function getTotalAmountOfTokens(uint256 _contribution) public constant returns (uint256 amountOfTokens) {
+		uint256 currentTokenRate = 0;
+		if (now < week2Start) {
+			return currentTokenRate = safeMul(_contribution, 6000);
+		} else if (now < week3Start) {
+			return currentTokenRate = safeMul(_contribution, 5000);
+		} else if (now < week4Start) {
+			return currentTokenRate = safeMul(_contribution, 4000);
+		} else {
+			return currentTokenRate = safeMul(_contribution, 3000);
+		}
+
+	}*/
+
 	/// @dev addBonusRate adding bonuses foe weeks period
 	/// @param _period array periods for bonus
 	/// @param _rate array periods for bonus
@@ -78,9 +97,7 @@ contract NOUSCrowdsale is SalesAgent, Ownable {
 		return nousTokenSale.getSaleContractTokensRate(this); // return default rate if not config
 	}
 
-	function claimRefund(){
-
+	function finaliseFunding() onlyOwner {
+		super.finaliseFunding();
 	}
-
-
 }

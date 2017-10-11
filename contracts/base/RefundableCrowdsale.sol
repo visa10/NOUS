@@ -31,13 +31,13 @@ contract RefundableCrowdsale is Crowdsale {
 	// We're overriding the fund forwarding from Crowdsale.
 	// In addition to sending the funds, we want to call
 	// the RefundVault deposit function
-	function forwardFunds() internal {
-		vault.deposit.value(msg.value)(msg.sender);
+	function forwardFunds(address _sender) internal {
+		vault.deposit.value(msg.value)(_sender);
 	}
 
 	// if crowdsale is unsuccessful, investors can claim refunds here
 	function claimRefund(address beneficiary) isSalesContract(msg.sender) public returns (uint256) {
-		require(isGlobalFinalized); // if finalized global
+		require(saleState == SaleState.Closed); // refund started only closed contract
 		require(!goalReached());
 
 		//token. TODO get token
@@ -46,6 +46,7 @@ contract RefundableCrowdsale is Crowdsale {
 
 	// vault global finalization task, called when owner calls finalize()
 	function globalFinalization() internal {
+		require(!isGlobalFinalized);
 		if (goalReached()) {
 			vault.close();
 		} else {
@@ -57,7 +58,7 @@ contract RefundableCrowdsale is Crowdsale {
 
 	// todo max test
 	function goalReached() public constant returns (bool) {
-		return weiRaised >= targetEthMin;
+		return weiRaised < targetEthMin;
 	}
 
 }

@@ -1,8 +1,9 @@
 pragma solidity ^0.4.11;
 
 import "../NOUSSale.sol";
+import "../base/Ownable.sol";
 
-contract SalesAgent {
+contract SalesAgent is Ownable{
 
     address saleContractAddress;                           // Main contract token address
 
@@ -33,8 +34,8 @@ contract SalesAgent {
 //        _;
 //    }
 //
-//    event Contribute(address _agent, address _sender, uint256 _value);
-//    event FinaliseSale(address _agent, address _sender, uint256 _value);
+    event Contribute(address _agent, address _sender, uint256 _value);
+    event FinaliseSale(address _agent, address _sender, uint256 _value);
     event Refund(address _agent, address _sender, uint256 _value);
 //    event ClaimTokens(address _agent, address _sender, uint256 _value);
 //    event TransferToDepositAddress(address _agent, address _sender, uint256 _value);
@@ -53,5 +54,15 @@ contract SalesAgent {
         // Is it the right address? Will throw if incorrect
         nousSale.setSaleContractDepositAddressVerified(msg.sender);
     }*/
+
+	function finaliseFunding() onlyOwner {
+
+		// Do some common contribution validation, will throw if an error occurs - address calling this should match the deposit address
+		if (nousTokenSale.finalizeSaleContract(msg.sender)) {
+			// Fire event
+			FinaliseSale(this, msg.sender, this.balance);
+		}
+	}
+
 
 }
