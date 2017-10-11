@@ -48,10 +48,10 @@ contract BaseContract is Ownable {
 		bytes32 name; // name bonus
 		uint256 delay; // delay to payment in month
 		uint256 percent; // percent payed
-		uint256 periodForPay; // period for payaut equal patch. month if 0 then payed after delay?
-		uint256 percentPeriodPay;
-		uint256 amount; // amount acured
+		uint256 periodPathOfPay; // on how many equal parts to pay
+		uint256 amountReserve; // amount acured
 		uint256 totalPayout; // how is payed
+		uint256 timeLastPayout; // how is payed
 	}
 
 	Bounty[] bountyPayment; // array bonuses
@@ -66,7 +66,7 @@ contract BaseContract is Ownable {
 
 	struct SalesAgent {                     // These are contract addresses that are authorised to mint tokens
 		address saleContractAddress;        // Address of the contract
-		bytes32 saleContractType;           // Type of the contract ie. presale, crowdsale
+		bytes32 saleContractType;           // Type of the contract ie. presale, crowdsale, reserve_funds
 		uint256 tokensLimit;                // The maximum amount of tokens this sale contract is allowed to distribute
 		uint256 tokensMinted;               // The current amount of tokens minted by this agent
 		uint256 rate;						// default rate
@@ -159,7 +159,7 @@ contract BaseContract is Ownable {
 	}
 
 	/// @dev add bounty initial state
-	function addPaymentBounty(address _walletAddress, bytes32 _name, uint256 _percent, uint256 _delay, uint256 _periodForPay, uint256 _percentPeriodPay) internal {
+	function addPaymentBounty(address _walletAddress, bytes32 _name, uint256 _percent, uint256 _delay, uint256 _periodPathOfPay) internal {
 		assert(_walletAddress != 0x0);
 
 		Bounty memory newBounty;
@@ -167,8 +167,9 @@ contract BaseContract is Ownable {
 		newBounty.name = _name;
 		newBounty.percent = _percent;
 		newBounty.delay = _delay;
-		newBounty.periodForPay = _periodForPay;
-		newBounty.percentPeriodPay = _percentPeriodPay;
+		newBounty.periodPathOfPay = _periodPathOfPay;
+		newBounty.amountReserve = 0;
+		newBounty.totalPayout = 0;
 
 		bountyPayment.push(newBounty);
 	}
@@ -188,6 +189,8 @@ contract BaseContract is Ownable {
 	function finalizeICO() isSalesContract(msg.sender) public returns(bool)  {
 		require(!isGlobalFinalized);
 		require(hasEnded());
+
+		reserveBonuses();
 		globalFinalization();
 		saleState != SaleState.Closed; // close all sale
 		token.finishMinting(); // stop mining tokens
@@ -198,6 +201,8 @@ contract BaseContract is Ownable {
 		isGlobalFinalized = true;
 		//logic global finalization
 	}
+
+	function reserveBonuses() internal {}
 
 	/// @return true if crowdsale event has ended and call super.hasEnded
 	function hasEnded() public constant returns (bool) {

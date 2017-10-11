@@ -109,37 +109,54 @@ contract Crowdsale is BaseContract {
 		return true;
 	}
 
-	function reserveBonuses() {
-
-	}
-
-	/*function payDelayBonuses() public isSalesContract(msg.sender) {
-		require(salesAgents[msg.sender].saleContractType == 'reserve');
-		require(salesAgents[msg.sender].endTime > now);
+	/// @dev reserve all bounty on this NOUSSale address contract
+	function reserveBonuses() internal {
+		require(saleState != SaleState.Closed);
+		require(salesAgents[msg.sender].saleContractType == 'reserve_funds');
 
 		uint256 totalSupply = token.totalSupply();
 
-		for (uint256 i = 0; i < paymentIndex.length; i++ ){
-			Bounty bounty = bountyPercent[paymentIndex[i]];
-
-			if (bounty.paymentDelay == true){ //validate for payment
-				continue;
-			}
-
-			uint256 dateEndDelay = salesAgents[msg.sender].startTime;
-
-			for (uint256 p; p < bounty.delay; p++){
-				dateEndDelay = dateEndDelay + (30 days);
-			}
-
-			if (now <= dateEndDelay) {
-				uint256 sumForPay = totalSupply.mul(bounty.percentForPay).div(100);
-				token.mint(bounty.wallet, sumForPay);
-				salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(sumForPay);
+		for (uint256 i = 0; i < bountyPayment.length; i++) {
+			if (bountyPayment[i].amountReserve == 0) {
+				bountyPayment[i].amountReserve = totalSupply.mul(bountyPayment[i].percent).div(100); // reserve fonds on this contract
+				token.mint(this, bountyPayment[i].amountReserve);
 			}
 		}
+	}
 
-	}*/
+	// @dev start only minet close
+	function payDelayBonuses() public isSalesContract(msg.sender) {
+		require(salesAgents[msg.sender].saleContractType == 'reserve_funds');
+		require(saleState == SaleState.Closed);
+
+		uint256 delayNextTime = 0;
+
+		for (uint256 i = 0; i < bountyPayment.length; i++ )
+		{
+			uint256 dateDelay = salesAgents[msg.sender].startTime;
+
+			for (uint256 p; p < bountyPayment[i].delay; p++){
+				dateDelay = dateDelay + (30 days);
+			}
+
+			if ( bountyPayment[i].timeLastPayout == 0 ){
+				delayNextTime = dateDelay;
+			} else {
+				delayNextTime = bountyPayment[i].timeLastPayout + (30 days);
+			}
+
+			if (now >= dateDelay
+				&& bountyPayment[i].amountReserve > bountyPayment[i].totalPayout
+				&& now >= delayNextTime)
+			{
+				uint256 payout = bountyPayment[i].amountReserve.div(bountyPayment[i].periodPathOfPay);
+				token.transferFrom(this, bountyPayment[i].wallet, payout);
+				bountyPayment[i].timeLastPayout = delayNextTime;
+			}
+
+		}
+
+	}
 
 
 

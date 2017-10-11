@@ -9,10 +9,17 @@ contract NOUSSale is RefundableCrowdsale {
 
 	function Sale(){
 
-		totalSupplyCap = 777 * (10**6) * exponent;    //777 Million tokens
-		availablePurchase = 543900000 * exponent;    //543 900 000 tokens  Available for purchase
-		targetEthMax = 85000 * (1 ether); // minimum amount of funds to be raised in weis
-		targetEthMin = 5500  * (1 ether); // minimum amount of funds to be raised in weis
+		//777 Million tokens
+		totalSupplyCap = 777 * (10**6) * exponent;
+
+		//543 900 000 tokens  Available for purchase
+		availablePurchase = 543900000 * exponent;
+
+		// minimum amount of funds to be raised in weis
+		targetEthMax = 85000 * (1 ether);
+
+		// minimum amount of funds to be raised in weis
+		targetEthMin = 5500  * (1 ether);
 		rate = 6400;
 		wallet = 0x0; // todo add address wallet amount
 
@@ -20,13 +27,13 @@ contract NOUSSale is RefundableCrowdsale {
 		// 20% Will Be Retained by Nousplatform
 		// Nousplatform retained tokens are locked for the first 4 months, and will be vested over a period of 20 months total,
 		// 5% every month. The total vesting period is 24 months.
-		addPaymentBounty("0xAD4016f585DA476073c7D53a5E53d9Ec6c735204", "TeamBonus", 20, 4, 20, 5);
+		addPaymentBounty("0xe594004148C30B1762A108F017999F081aDa8143", "TeamBonus", 20, 4, 20); // test account 4
 
 		// 5% Advisors, Grants, Partnerships  Advisors tokens are locked for 2 months and distributed fully.
-		addPaymentBounty("0xAD4016f585DA476073c7D53a5E53d9Ec6c735204", "AdvisorsBonus", 5, 2, 0, 100); // Advisors tokens are locked for 2 months and distributed fully.
+		addPaymentBounty("0x4043BF02966Fa198fa24489Ca76DE1Be669f6e33", "AdvisorsBonus", 5, 2, 1); // test account 5
 
 		// 3% Community, 2% Will Be Used To Cover Token Sale
-		addPaymentBounty("0xAD4016f585DA476073c7D53a5E53d9Ec6c735204", "GrantsBonus",  5, 0, 0, 100);
+		addPaymentBounty("0x96473fFE81913158a113bA5683B050DD264d2a9C", "GrantsBonus",  5, 0, 1); // test account 6
 
 	}
 
