@@ -14,7 +14,7 @@ contract BaseContract is Ownable {
 
 	MintableToken public token; // The token being sold
 
-	enum SaleState { Active, Pending, Closed }
+	enum SaleState { Active, Pending, Ended }
 	SaleState public saleState;
 
 	uint8 public constant decimals = 18;
@@ -130,7 +130,7 @@ contract BaseContract is Ownable {
 	public onlyOwner
 	{
 		// if Sale state closed do not add sale config
-		require(saleState != SaleState.Closed);
+		require(saleState != SaleState.Ended);
 		// Valid addresses?
 		require(_saleAddress != 0x0);
 		// Must have some available tokens
@@ -192,7 +192,7 @@ contract BaseContract is Ownable {
 
 		reserveBonuses();
 		globalFinalization();
-		saleState != SaleState.Closed; // close all sale
+		saleState != SaleState.Ended; // close all sale
 		token.finishMinting(); // stop mining tokens
 		return true;
 	}
@@ -214,14 +214,14 @@ contract BaseContract is Ownable {
 
 	/// @dev stop sale
 	function setPendingSale() onlyOwner {
-		if (saleState != SaleState.Closed){
+		if (saleState != SaleState.Ended){
 			saleState = SaleState.Pending;
 		}
 	}
 
 	/// @dev Activate
 	function setActiveSale() onlyOwner {
-		if (saleState != SaleState.Closed){
+		if (saleState != SaleState.Ended){
 			saleState = SaleState.Active;
 		}
 	}

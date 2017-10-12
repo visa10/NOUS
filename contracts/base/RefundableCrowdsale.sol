@@ -37,7 +37,7 @@ contract RefundableCrowdsale is Crowdsale {
 
 	// if crowdsale is unsuccessful, investors can claim refunds here
 	function claimRefund(address beneficiary) isSalesContract(msg.sender) public returns (uint256) {
-		require(saleState == SaleState.Closed); // refund started only closed contract
+		require(saleState == SaleState.Ended); // refund started only closed contract
 		require(!goalReached());
 
 		//token. TODO get token

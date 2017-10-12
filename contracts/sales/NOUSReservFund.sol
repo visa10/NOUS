@@ -13,12 +13,15 @@ contract NOUSReservFund is SalesAgent {
 	}
 
 	function globalFinalizationStartBonusPayable() onlyOwner {
-
-
 		nousTokenSale.finalizeICO();
 	}
 
-
+	/**
+	*
+	*/
+	function payoutBonuses() onlyOwner {
+		nousTokenSale.payDelayBonuses();
+	}
 
 	/**
 	* @dev if they ICO did not reach the goal
