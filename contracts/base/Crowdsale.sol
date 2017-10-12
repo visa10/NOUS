@@ -72,30 +72,30 @@ contract Crowdsale is BaseContract {
 	}
 
 	/// @return true if crowdsale event has ended and call super.hasEnded
-	function hasEnded() public constant returns (bool) {
-		salesAgents[msg.sender].tokensMinted >= salesAgents[msg.sender].tokensLimit //capReachedToken
+	function hasEnded(address _salesAgent) public constant returns (bool) {
+		salesAgents[_salesAgent].tokensMinted >= salesAgents[_salesAgent].tokensLimit //capReachedToken
 		|| weiRaised >= targetEthMax //capReachedWei
 		|| totalSupplyCap >= token.totalSupply()
-		|| now > salesAgents[msg.sender].endTime; //timeAllow
+		|| now > salesAgents[_salesAgent].endTime; //timeAllow
 	}
 
 	//*******************Finalize*****************//
 
 	/// @dev Sets the contract sale agent process as completed, that sales agent is now retired
 	/// oweride if ne logic and coll super finalize
-	function finalizeSaleContract(address _sender) isSalesContract(msg.sender) public returns(bool) {
-		require(!salesAgents[msg.sender].isFinalized);
-		require(hasEnded());
+	function finalizeSaleContract(address _salesAgent) ownerOrSale() public returns(bool) {
+		require(!salesAgents[_salesAgent].isFinalized);
+		require(hasEnded(_salesAgent));
 
-		salesAgents[msg.sender].isFinalized = true;
-		SaleFinalised(msg.sender, _sender, salesAgents[msg.sender].tokensMinted);
+		salesAgents[_salesAgent].isFinalized = true;
+		SaleFinalised(_salesAgent, msg.sender, salesAgents[_salesAgent].tokensMinted);
 		return true;
 	}
 
 	/// @dev global finalization is activate this function all sales wos stoped.
-	function finalizeICO() isSalesContract(msg.sender) public returns(bool)  {
+	function finalizeICO() ownerOrSale() public returns(bool)  {
 		require(!isGlobalFinalized);
-		require(hasEnded());
+		require(hasEnded(msg.sender));
 
 		if (goalReached()) {
 			vault.close(); // close vault contract and send ETH to Wallet

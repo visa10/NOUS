@@ -50,6 +50,10 @@ contract NOUSCrowdsale is SalesAgent {
 		}
 	}
 
+	function globalFinalizationStartBonusPayable() onlyOwner {
+		nousTokenSale.finalizeICO();
+	}
+
 	/**
 		@dev computes the number of tokens that should be issued for a given contribution
 		@param _contribution    contribution amount

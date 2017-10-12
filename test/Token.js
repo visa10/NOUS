@@ -234,4 +234,4 @@ contract('RocketPoolToken', function (accounts) {
  
 
 //            address                               name    maxTCN   MinD MaxD      StartT      EndTime
-// "0x6431fd0c29d024c5b04c7dab157fccd329e62e55", "presale", 23310000, 0, 23310000, 1507825800, 1507826700
+// "0x9635e132729aa83b126ab8b159194196b5eeb069", "presale", 23310000, 0, 23310000, 1507826700, 1507827600, 7400

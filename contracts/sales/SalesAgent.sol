@@ -37,7 +37,7 @@ contract SalesAgent is Ownable{
     event Contribute(address _agent, address _sender, uint256 _value);
     event FinaliseSale(address _agent, address _sender, uint256 _value);
     event Refund(address _agent, address _sender, uint256 _value);
-//    event ClaimTokens(address _agent, address _sender, uint256 _value);
+    event ClaimTokens(address _agent, address _sender, uint256 _value);
 //    event TransferToDepositAddress(address _agent, address _sender, uint256 _value);
 //
 //
@@ -59,8 +59,8 @@ contract SalesAgent is Ownable{
 
 		// Do some common contribution validation, will throw if an error occurs - address calling this should match the deposit address
 		if (nousTokenSale.finalizeSaleContract(msg.sender)) {
-			// Fire event
-			FinaliseSale(this, msg.sender, this.balance);
+			uint256 tokenMinted = nousTokenSale.getSaleContractTokensMinted(this);
+			FinaliseSale(this, msg.sender, tokenMinted);
 		}
 	}
 

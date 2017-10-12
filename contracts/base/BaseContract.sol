@@ -39,7 +39,7 @@ contract BaseContract is Ownable {
 
 	/**** Events ***********/
 
-	event SaleFinalised(address _agent, address _address, uint256 _value);
+	event SaleFinalised(address _agent, address _address, uint256 _amountMint);
 
 	event TotalOutBounty(address _agent, address _wallet, bytes32 _name, uint256 _totalPayout); // all payed to bonus
 
@@ -93,7 +93,7 @@ contract BaseContract is Ownable {
 		_;
 	}
 
-	modifier ownerOrSale(){
+	modifier ownerOrSale() {
 		assert(salesAgents[msg.sender].exists == true || msg.sender == owner);
 		_;
 	}
@@ -247,15 +247,15 @@ contract BaseContract is Ownable {
 
 	/// @dev Returns the min target amount of ether the contract wants to raise
 	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getTargetEtherMin(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+	/*function getTargetEtherMin() constant isSalesContract(_salesAgentAddress) public returns(uint256) {
 		return targetEthMin;
-	}
+	}*/
 
 	/// @dev Returns the max target amount of ether the contract can raise
 	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+	/*function getTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
 		return targetEthMax;
-	}
+	}*/
 
 	/// @dev Returns the start block for the sale agent
 	/// @param _salesAgentAddress The address of the token sale agent contract
