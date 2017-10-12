@@ -4,6 +4,7 @@ import "../base/Ownable.sol";
 import "../lib/SafeMath.sol";
 import "../token/MintableToken.sol";
 import "../NOUSToken.sol";
+import './RefundVault.sol';
 
 
 contract BaseContract is Ownable {
@@ -13,6 +14,8 @@ contract BaseContract is Ownable {
 	using SafeMath for uint256;
 
 	MintableToken public token; // The token being sold
+
+	RefundVault public vault; // contract refunded value
 
 	enum SaleState { Active, Pending, Ended }
 	SaleState public saleState;
@@ -24,7 +27,7 @@ contract BaseContract is Ownable {
 
 	uint256 public totalSupplyCap; // 777 Million tokens Capitalize max count NOUS tokens
 	uint256 public availablePurchase; // 543 900 000 tokens  Available for purchase
-	uint256 public targetEthMax;               // The max amount of ether the agent is allowed raise
+	uint256 public targetEthMax; // The max amount of ether the agent is allowed raise
 	uint256 public targetEthMin; // minimum amount of funds to be raised in weis
 
 	//uint256 public rate; // todo  rate is bonus
@@ -98,8 +101,13 @@ contract BaseContract is Ownable {
 	/// @dev constructor
 	function BaseContract(address _wallet){
 		wallet = _wallet;
+
 		if (address(token) == 0x0) {
-			//token = createTokenContract();
+			token = createTokenContract();
+		}
+
+		if (address(vault) == 0x0) {
+			vault = createRefundVault();
 		}
 	}
 
@@ -108,6 +116,16 @@ contract BaseContract is Ownable {
 	function createTokenContract() internal returns (MintableToken) {
 		return new NOUSToken();
 	}
+
+	function createRefundVault() internal returns (RefundVault){
+		return new RefundVault(wallet);
+	}
+
+	// validate goal
+	function goalReached() public constant returns (bool) {
+		return weiRaised < targetEthMin;
+	}
+
 
 	/// @dev Set the address of a new crowdsale/presale contract agent if needed, usefull for upgrading
 	/// @param _saleAddress The address of the new token sale contract
@@ -130,6 +148,7 @@ contract BaseContract is Ownable {
 	// Only the owner can register a new sale agent
 	public onlyOwner
 	{
+		require(!checkActiveSale());
 		// if Sale state closed do not add sale config
 		require(saleState != SaleState.Ended);
 		// Valid addresses?
@@ -139,7 +158,7 @@ contract BaseContract is Ownable {
 		// Make sure the min deposit is less than or equal to the max
 		require(_minDeposit <= _maxDeposit);
 		require(_startTime >= now);
-		require(_endTime >= _startTime);
+		require(_endTime > _startTime);
 		// Add the new sales contract
 		SalesAgent memory newSalesAgent;
 		newSalesAgent.saleContractAddress = _saleAddress;
@@ -157,6 +176,17 @@ contract BaseContract is Ownable {
 		salesAgents[_saleAddress] = newSalesAgent;
 		// Store our agent address so we can iterate over it if needed
 		salesAgentsAddresses.push(_saleAddress);
+	}
+
+	function checkActiveSale() returns (bool){
+		uint256 i = salesAgentsAddresses.length;
+		while (i > 0) {
+			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
+				return true;
+			}
+			i--;
+		}
+		return false;
 	}
 
 	/// @dev add bounty initial state
@@ -191,16 +221,17 @@ contract BaseContract is Ownable {
 		require(!isGlobalFinalized);
 		require(hasEnded());
 
-		reserveBonuses();
-		globalFinalization();
+		if (goalReached()) {
+			vault.close(); // close vault contract and send ETH to Wallet
+			reserveBonuses(); // reserve bonuses
+		} else {
+			vault.enableRefunds();
+		}
+
 		saleState != SaleState.Ended; // close all sale
 		token.finishMinting(); // stop mining tokens
-		return true;
-	}
-
-	function globalFinalization() internal {
 		isGlobalFinalized = true;
-		//logic global finalization
+		return true;
 	}
 
 	function reserveBonuses() internal {}
@@ -213,17 +244,22 @@ contract BaseContract is Ownable {
 		|| now > salesAgents[msg.sender].endTime; //timeAllow
 	}
 
-	/// @dev stop sale
-	function setPendingSale() onlyOwner {
-		if (saleState != SaleState.Ended){
-			saleState = SaleState.Pending;
-		}
+	// if crowdsale is unsuccessful, investors can claim refunds here
+	function claimRefund(address beneficiary) isSalesContract(msg.sender) public returns (uint256) {
+		require(saleState == SaleState.Ended); // refund started only closed contract
+		require(!goalReached());
+
+		//token. TODO get token
+		return vault.refund(beneficiary);
 	}
 
-	/// @dev Activate
-	function setActiveSale() onlyOwner {
-		if (saleState != SaleState.Ended){
+	/// @dev stop sale
+	function PendingActiveSale() onlyOwner {
+		require(saleState != SaleState.Ended);
+		if (saleState == SaleState.Pending){
 			saleState = SaleState.Active;
+		} else {
+			saleState = SaleState.Pending;
 		}
 	}
 

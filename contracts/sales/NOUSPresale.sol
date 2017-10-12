@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import "../base/SalesAgent.sol";
+import "./SalesAgent.sol";
 import "../lib/SafeMath.sol";
 import "../NOUSSale.sol";
 
@@ -23,7 +23,7 @@ contract NOUSPresale is SalesAgent {
 		// calculate tokens - get bonus rate
 		uint256 tokens = weiAmount.mul(rate).div(1 ether);
 
-		require(nousTokenSale.validPurchase(tokens)); // require tokens
+		require(nousTokenSale.validPurchase(this, tokens)); // require tokens
 
 		bool success = nousTokenSale.buyTokens.value(msg.value)(msg.sender, tokens);
 

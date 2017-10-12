@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import "../base/SalesAgent.sol";
+import "./SalesAgent.sol";
 import "../lib/SafeMath.sol";
 import "../NOUSSale.sol";
 
@@ -22,7 +22,6 @@ contract NOUSCrowdsale is SalesAgent {
 		addBonusRate(1, 7300); // 1 Week = 7300 NOUS
 		addBonusRate(2, 7000); // 2 Week 1 ETH = 7000 NOUS
 		addBonusRate(3, 6700); // 3 Week 1 ETH = 6700 NOUS
-		//addBonusRate(4, 6400); //  6400 NOUS  default value
 	}
 
 	function() payable external {
@@ -39,7 +38,7 @@ contract NOUSCrowdsale is SalesAgent {
 		// calculate tokens - get bonus rate
 		uint256 tokens = weiAmount.mul(rate).div(1 ether);
 
-		require(nousTokenSale.validPurchase(tokens)); // require tokens
+		require(nousTokenSale.validPurchase(this, tokens)); // require tokens
 
 		bool success = nousTokenSale.buyTokens.value(msg.value)(msg.sender, tokens);
 

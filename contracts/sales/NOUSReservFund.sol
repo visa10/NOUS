@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import "../base/SalesAgent.sol";
+import "./SalesAgent.sol";
 import "../lib/SafeMath.sol";
 import "../NOUSSale.sol";
 

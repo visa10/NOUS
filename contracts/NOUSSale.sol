@@ -2,10 +2,12 @@ pragma solidity ^0.4.11;
 
 
 import "./token/MintableToken.sol";
-import "./base/RefundableCrowdsale.sol";
+import "./base/Crowdsale.sol";
 
 
-contract NOUSSale is RefundableCrowdsale {
+contract NOUSSale is Crowdsale {
+
+	//wallet = 0xdd870fa1b7c4700f2bd7f44238821c26f7392148; // todo add address wallet amount
 
 	function NOUSSale(address _wallet, address _token)
 	BaseContract(_wallet)
@@ -24,7 +26,6 @@ contract NOUSSale is RefundableCrowdsale {
 		//rate = 6400;
 		
 		token = MintableToken(_token);
-		//wallet = 0xdd870fa1b7c4700f2bd7f44238821c26f7392148; // todo add address wallet amount
 
 		//TODO Set Real address
 		// 20% Will Be Retained by Nousplatform

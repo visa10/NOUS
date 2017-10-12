@@ -26,27 +26,34 @@ contract Crowdsale is BaseContract {
 	/// @dev this contact sale not payed/ Payed only forwardFunds TODO validate this
 
 	function buyTokens(address beneficiary, uint256 tokens) isSalesContract(msg.sender) public payable returns(bool) {
-		require(saleState == SaleState.Active); // if sale is frozen
+
+		require(saleState == SaleState.Active); // if sale is frozen TODO validate stop sale and send transaction
 		require(beneficiary != 0x0);
-		//require(msg.value > 0); // TODO validate
+		require(msg.value > 0); // TODO validate
+
+		uint256 weiAmount = msg.value;
 
 		token.mint(beneficiary, tokens);
 		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(tokens); // increment tokensMinted
-		TokenPurchase(msg.sender, beneficiary, msg.value, tokens);
 
-		forwardFunds(beneficiary); // transfer ETH to refund contract
-		weiRaised = weiRaised.add(msg.value); // increment wei Raised
+		vault.deposit.value(weiAmount)(beneficiary); // transfer ETH to refund contract
+		weiRaised = weiRaised.add(weiAmount); // increment wei Raised
+
+		TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
 		return true;
 	}
 
-	// @dev Validate Mined tokens
-	function validPurchase(uint _tokens) isSalesContract(msg.sender) returns (bool) {
+	function validateStateSaleContract() returns (bool) {
 		salesAgents[msg.sender].isFinalized == false // No minting if the sale contract has finalised
-		&& now > salesAgents[msg.sender].startTime
-		&& now < salesAgents[msg.sender].endTime // within time
-		&& _tokens > 0 // non zero
-		&& salesAgents[msg.sender].tokensLimit >= salesAgents[msg.sender].tokensMinted.add(_tokens) // within Tokens mined
+		&& now > salesAgents[msg.sender].startTime //
+		&& now < salesAgents[msg.sender].endTime; // within time
+	}
+
+	// @dev Validate Mined tokens
+	function validPurchase(address _agent, uint _tokens) isSalesContract(msg.sender) returns (bool) {
+		_tokens > 0 // non zero
+		&& salesAgents[_agent].tokensLimit >= salesAgents[_agent].tokensMinted.add(_tokens) // within Tokens mined
 		&& totalSupplyCap >= token.totalSupply().add(_tokens);
 	}
 
@@ -56,19 +63,11 @@ contract Crowdsale is BaseContract {
 	function validateContribution(uint256 _value) isSalesContract(msg.sender) returns (bool) {
 		_value > 0
 		&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
-		&& salesAgents[msg.sender].isFinalized == false
-		&& now > salesAgents[msg.sender].startTime  // Check started
-		&& now < salesAgents[msg.sender].endTime
 		&& _value >= salesAgents[msg.sender].minDeposit // Is it above the min deposit amount?
 		&& _value <= salesAgents[msg.sender].maxDeposit
 		&& weiRaised.add(_value) <= targetEthMax; // Does this deposit put it over the max target ether for the sale contract?
 	}
 
-	// send ether to the fund collection wallet
-	// override to create custom fund forwarding mechanisms
-	function forwardFunds(address _sender) internal {
-		wallet.transfer(msg.value);
-	}
 
 	/**
 	* @dev Function to send NOUS to presale investors
@@ -97,9 +96,7 @@ contract Crowdsale is BaseContract {
 	*/
 	function deliverTokenToClient(address _salesAgent, address _accountHolder, uint256 _amountOf) ownerOrSale public returns(bool){
 		require(_accountHolder != 0x0);
-		require(_amountOf > 0);
-		require(salesAgents[_salesAgent].isFinalized == false);
-		require(salesAgents[_salesAgent].tokensLimit >= salesAgents[_salesAgent].tokensMinted.add(_amountOf));
+		require(validPurchase(_salesAgent, _amountOf));
 
 		token.mint(_accountHolder, _amountOf);
 		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(_amountOf);
@@ -156,8 +153,6 @@ contract Crowdsale is BaseContract {
 		}
 
 	}
-
-
 
 
 
