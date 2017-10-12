@@ -47,15 +47,15 @@ contract Crowdsale is BaseContract {
 	//**************Validates*****************//
 
 	/// @dev Validate state contract
-	function validateStateSaleContract() returns (bool) {
-		salesAgents[msg.sender].isFinalized == false // No minting if the sale contract has finalised
-		&& now > salesAgents[msg.sender].startTime //
-		&& now < salesAgents[msg.sender].endTime; // within time
+	function validateStateSaleContract(address _salesAgent) public returns (bool) {
+		return salesAgents[_salesAgent].isFinalized == false // No minting if the sale contract has finalised
+		&& now > salesAgents[_salesAgent].startTime //
+		&& now < salesAgents[_salesAgent].endTime; // within time
 	}
 
 	/// @dev Validate Mined tokens
 	function validPurchase(address _agent, uint _tokens) isSalesContract(msg.sender) returns (bool) {
-		_tokens > 0 // non zero
+		return _tokens > 0 // non zero
 		&& salesAgents[_agent].tokensLimit >= salesAgents[_agent].tokensMinted.add(_tokens) // within Tokens mined
 		&& totalSupplyCap >= token.totalSupply().add(_tokens);
 	}
@@ -64,7 +64,7 @@ contract Crowdsale is BaseContract {
 	/// @param _value The value of the contribution in wei
 	/// @return A boolean that indicates if the operation was successful.
 	function validateContribution(uint256 _value) isSalesContract(msg.sender) returns (bool) {
-		_value > 0
+		return _value > 0
 		&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
 		&& _value >= salesAgents[msg.sender].minDeposit // Is it above the min deposit amount?
 		&& _value <= salesAgents[msg.sender].maxDeposit

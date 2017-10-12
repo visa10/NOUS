@@ -41,6 +41,4 @@ contract NOUSSale is Crowdsale {
 
 	}
 
-
-
 }

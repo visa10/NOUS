@@ -80,7 +80,6 @@ contract BaseContract is Ownable {
 		uint256 endTime;                    // The end time from unix format when to finish minting tokens
 		bool isFinalized;                   // Has this sales contract been completed and the ether sent to the deposit address?
 		bool exists;                        // Check to see if the mapping exists
-		bool isLastSale; 					// Last sale
 		//uint256[] bonusRatesIndex;			// index rates
 		//mapping (uint256 => BonusRateStruct) bonusRates; // if one bonus is default
 	}
@@ -141,8 +140,7 @@ contract BaseContract is Ownable {
 		uint256 _minDeposit,
 		uint256 _maxDeposit,
 		uint256 _startTime,
-		uint256 _endTime,
-		bool _isLastSale
+		uint256 _endTime
 	)
 	// Only the owner can register a new sale agent
 	public onlyOwner
@@ -170,7 +168,7 @@ contract BaseContract is Ownable {
 		newSalesAgent.endTime = _endTime;
 		newSalesAgent.isFinalized = false;
 		newSalesAgent.exists = true;
-		newSalesAgent.isLastSale = _isLastSale; // after sale start global finalize
+
 		//newSalesAgent.bonusRates = new BonusRateStruct[](0); // after sale start global finalize
 		salesAgents[_saleAddress] = newSalesAgent;
 		// Store our agent address so we can iterate over it if needed
@@ -191,17 +189,6 @@ contract BaseContract is Ownable {
 		newBounty.totalPayout = 0;
 
 		bountyPayment.push(newBounty);
-	}
-
-	function checkActiveSale() internal returns (bool){
-		uint256 i = salesAgentsAddresses.length;
-		while (i > 0) {
-			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
-				return true;
-			}
-			i--;
-		}
-		return false;
 	}
 
 	//****************Refund*******************//
@@ -232,6 +219,17 @@ contract BaseContract is Ownable {
 		}
 	}
 
+	function checkActiveSale() internal returns (bool){
+		uint256 i = salesAgentsAddresses.length;
+		while (i > 0) {
+			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
+				return true;
+			}
+			i--;
+		}
+		return false;
+	}
+
 	/// @dev warning Change owner token contact
 	function changeTokenOwner(address newOwner) onlyOwner {
 		token.transferOwnership(newOwner);
@@ -245,19 +243,17 @@ contract BaseContract is Ownable {
 		return salesAgents[_salesAgentAddress].isFinalized;
 	}
 
-
 	/// @dev Returns the min target amount of ether the contract wants to raise
 	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractTargetEtherMin(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+	function getTargetEtherMin(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
 		return targetEthMin;
 	}
 
 	/// @dev Returns the max target amount of ether the contract can raise
 	/// @param _salesAgentAddress The address of the token sale agent contract
-	function getSaleContractTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
+	function getTargetEtherMax(address _salesAgentAddress) constant isSalesContract(_salesAgentAddress) public returns(uint256) {
 		return targetEthMax;
 	}
-
 
 	/// @dev Returns the start block for the sale agent
 	/// @param _salesAgentAddress The address of the token sale agent contract

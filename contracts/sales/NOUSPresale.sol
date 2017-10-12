@@ -14,6 +14,7 @@ contract NOUSPresale is SalesAgent {
 
 	function() payable external {
 		// The target ether amount
+		require(nousTokenSale.validateStateSaleContract(this));
 		require(nousTokenSale.validateContribution(msg.value));
 		require(msg.sender != 0x0);
 
