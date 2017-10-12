@@ -44,22 +44,25 @@ contract Crowdsale is BaseContract {
 		return true;
 	}
 
+	//**************Validates*****************//
+
+	/// @dev Validate state contract
 	function validateStateSaleContract() returns (bool) {
 		salesAgents[msg.sender].isFinalized == false // No minting if the sale contract has finalised
 		&& now > salesAgents[msg.sender].startTime //
 		&& now < salesAgents[msg.sender].endTime; // within time
 	}
 
-	// @dev Validate Mined tokens
+	/// @dev Validate Mined tokens
 	function validPurchase(address _agent, uint _tokens) isSalesContract(msg.sender) returns (bool) {
 		_tokens > 0 // non zero
 		&& salesAgents[_agent].tokensLimit >= salesAgents[_agent].tokensMinted.add(_tokens) // within Tokens mined
 		&& totalSupplyCap >= token.totalSupply().add(_tokens);
 	}
 
-	// @dev General validation for a sales agent contract receiving a contribution, additional validation can be done in the sale contract if required
-	// @param _value The value of the contribution in wei
-	// @return A boolean that indicates if the operation was successful.
+	/// @dev General validation for a sales agent contract receiving a contribution, additional validation can be done in the sale contract if required
+	/// @param _value The value of the contribution in wei
+	/// @return A boolean that indicates if the operation was successful.
 	function validateContribution(uint256 _value) isSalesContract(msg.sender) returns (bool) {
 		_value > 0
 		&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
@@ -68,6 +71,46 @@ contract Crowdsale is BaseContract {
 		&& weiRaised.add(_value) <= targetEthMax; // Does this deposit put it over the max target ether for the sale contract?
 	}
 
+	/// @return true if crowdsale event has ended and call super.hasEnded
+	function hasEnded() public constant returns (bool) {
+		salesAgents[msg.sender].tokensMinted >= salesAgents[msg.sender].tokensLimit //capReachedToken
+		|| weiRaised >= targetEthMax //capReachedWei
+		|| totalSupplyCap >= token.totalSupply()
+		|| now > salesAgents[msg.sender].endTime; //timeAllow
+	}
+
+	//*******************Finalize*****************//
+
+	/// @dev Sets the contract sale agent process as completed, that sales agent is now retired
+	/// oweride if ne logic and coll super finalize
+	function finalizeSaleContract(address _sender) isSalesContract(msg.sender) public returns(bool) {
+		require(!salesAgents[msg.sender].isFinalized);
+		require(hasEnded());
+
+		salesAgents[msg.sender].isFinalized = true;
+		SaleFinalised(msg.sender, _sender, salesAgents[msg.sender].tokensMinted);
+		return true;
+	}
+
+	/// @dev global finalization is activate this function all sales wos stoped.
+	function finalizeICO() isSalesContract(msg.sender) public returns(bool)  {
+		require(!isGlobalFinalized);
+		require(hasEnded());
+
+		if (goalReached()) {
+			vault.close(); // close vault contract and send ETH to Wallet
+			reserveBonuses(); // reserve bonuses
+		} else {
+			vault.enableRefunds();
+		}
+
+		saleState != SaleState.Ended; // close all sale
+		token.finishMinting(); // stop mining tokens
+		isGlobalFinalized = true;
+		return true;
+	}
+
+	//**************Deliver*****************//
 
 	/**
 	* @dev Function to send NOUS to presale investors
@@ -104,6 +147,8 @@ contract Crowdsale is BaseContract {
 		TokenPurchase(msg.sender, _accountHolder, 0, _amountOf);
 		return true;
 	}
+
+	//**************Bonuses*****************//
 
 	/// @dev reserve all bounty on this NOUSSale address contract
 	function reserveBonuses() internal {
@@ -153,7 +198,5 @@ contract Crowdsale is BaseContract {
 		}
 
 	}
-
-
 
 }

@@ -13,6 +13,8 @@ contract BaseContract is Ownable {
 
 	using SafeMath for uint256;
 
+	/**** Variables ****************/
+
 	MintableToken public token; // The token being sold
 
 	RefundVault public vault; // contract refunded value
@@ -30,14 +32,13 @@ contract BaseContract is Ownable {
 	uint256 public targetEthMax; // The max amount of ether the agent is allowed raise
 	uint256 public targetEthMin; // minimum amount of funds to be raised in weis
 
-	//uint256 public rate; // todo  rate is bonus
-
 	address public wallet; // address where funds are collected Deposit address
 	uint256 public weiRaised; // amount of raised money in wei
 
 	bool isGlobalFinalized = false; // global finalization
 
-	/// events ///
+	/**** Events ***********/
+
 	event SaleFinalised(address _agent, address _address, uint256 _value);
 
 	event TotalOutBounty(address _agent, address _wallet, bytes32 _name, uint256 _totalPayout); // all payed to bonus
@@ -84,7 +85,7 @@ contract BaseContract is Ownable {
 		//mapping (uint256 => BonusRateStruct) bonusRates; // if one bonus is default
 	}
 
-
+	/**** Modifier ***********/
 
 	/// @dev Only allow access from the latest version of a sales contract
 	modifier isSalesContract(address _sender) {
@@ -97,6 +98,8 @@ contract BaseContract is Ownable {
 		assert(salesAgents[msg.sender].exists == true || msg.sender == owner);
 		_;
 	}
+
+	//****************Constructors*******************//
 
 	/// @dev constructor
 	function BaseContract(address _wallet){
@@ -121,11 +124,7 @@ contract BaseContract is Ownable {
 		return new RefundVault(wallet);
 	}
 
-	// validate goal
-	function goalReached() public constant returns (bool) {
-		return weiRaised < targetEthMin;
-	}
-
+	//**************Setters*****************//
 
 	/// @dev Set the address of a new crowdsale/presale contract agent if needed, usefull for upgrading
 	/// @param _saleAddress The address of the new token sale contract
@@ -178,19 +177,8 @@ contract BaseContract is Ownable {
 		salesAgentsAddresses.push(_saleAddress);
 	}
 
-	function checkActiveSale() returns (bool){
-		uint256 i = salesAgentsAddresses.length;
-		while (i > 0) {
-			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
-				return true;
-			}
-			i--;
-		}
-		return false;
-	}
-
 	/// @dev add bounty initial state
-	function addPaymentBounty(address _walletAddress, bytes32 _name, uint256 _percent, uint256 _delay, uint256 _periodPathOfPay) internal {
+	function setPaymentBounty(address _walletAddress, bytes32 _name, uint256 _percent, uint256 _delay, uint256 _periodPathOfPay) internal {
 		assert(_walletAddress != 0x0);
 
 		Bounty memory newBounty;
@@ -205,43 +193,22 @@ contract BaseContract is Ownable {
 		bountyPayment.push(newBounty);
 	}
 
-	/// @dev Sets the contract sale agent process as completed, that sales agent is now retired
-	/// oweride if ne logic and coll super finalize
-	function finalizeSaleContract(address _sender) isSalesContract(msg.sender) public returns(bool) {
-		require(!salesAgents[msg.sender].isFinalized);
-		require(hasEnded());
-
-		salesAgents[msg.sender].isFinalized = true;
-		SaleFinalised(msg.sender, _sender, salesAgents[msg.sender].tokensMinted);
-		return true;
-	}
-
-	/// @dev global finalization is activate this function all sales wos stoped.
-	function finalizeICO() isSalesContract(msg.sender) public returns(bool)  {
-		require(!isGlobalFinalized);
-		require(hasEnded());
-
-		if (goalReached()) {
-			vault.close(); // close vault contract and send ETH to Wallet
-			reserveBonuses(); // reserve bonuses
-		} else {
-			vault.enableRefunds();
+	function checkActiveSale() internal returns (bool){
+		uint256 i = salesAgentsAddresses.length;
+		while (i > 0) {
+			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
+				return true;
+			}
+			i--;
 		}
-
-		saleState != SaleState.Ended; // close all sale
-		token.finishMinting(); // stop mining tokens
-		isGlobalFinalized = true;
-		return true;
+		return false;
 	}
 
-	function reserveBonuses() internal {}
+	//****************Refund*******************//
 
-	/// @return true if crowdsale event has ended and call super.hasEnded
-	function hasEnded() public constant returns (bool) {
-		salesAgents[msg.sender].tokensMinted >= salesAgents[msg.sender].tokensLimit //capReachedToken
-		|| weiRaised >= targetEthMax //capReachedWei
-		|| totalSupplyCap >= token.totalSupply()
-		|| now > salesAgents[msg.sender].endTime; //timeAllow
+	// validate goal
+	function goalReached() public constant returns (bool) {
+		return weiRaised < targetEthMin;
 	}
 
 	// if crowdsale is unsuccessful, investors can claim refunds here
@@ -252,6 +219,8 @@ contract BaseContract is Ownable {
 		//token. TODO get token
 		return vault.refund(beneficiary);
 	}
+
+	//****************Manager*******************//
 
 	/// @dev stop sale
 	function PendingActiveSale() onlyOwner {
@@ -267,6 +236,8 @@ contract BaseContract is Ownable {
 	function changeTokenOwner(address newOwner) onlyOwner {
 		token.transferOwnership(newOwner);
 	}
+
+	//***************Getters******************/
 
 	/// @dev Returns true if this sales contract has finalised
 	/// @param _salesAgentAddress The address of the token sale agent contract

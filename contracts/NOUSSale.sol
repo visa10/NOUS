@@ -31,13 +31,13 @@ contract NOUSSale is Crowdsale {
 		// 20% Will Be Retained by Nousplatform
 		// Nousplatform retained tokens are locked for the first 4 months, and will be vested over a period of 20 months total,
 		// 5% every month. The total vesting period is 24 months.
-		addPaymentBounty(0xe594004148C30B1762A108F017999F081aDa8143, "TeamBonus", 20, 4, 5); // test account 4
+		setPaymentBounty(0xe594004148C30B1762A108F017999F081aDa8143, "TeamBonus", 20, 4, 5); // test account 4
 
 		// 5% Advisors, Grants, Partnerships  Advisors tokens are locked for 2 months and distributed fully.
-		addPaymentBounty(0x4043BF02966Fa198fa24489Ca76DE1Be669f6e33, "AdvisorsBonus", 5, 2, 1); // test account 5
+		setPaymentBounty(0x4043BF02966Fa198fa24489Ca76DE1Be669f6e33, "AdvisorsBonus", 5, 2, 1); // test account 5
 
 		// 3% Community, 2% Will Be Used To Cover Token Sale
-		addPaymentBounty(0x96473fFE81913158a113bA5683B050DD264d2a9C, "GrantsBonus",  5, 0, 1); // test account 6
+		setPaymentBounty(0x96473fFE81913158a113bA5683B050DD264d2a9C, "GrantsBonus",  5, 0, 1); // test account 6
 
 	}
 
