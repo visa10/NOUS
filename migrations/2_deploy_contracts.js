@@ -1,8 +1,13 @@
-var ConvertLib = artifacts.require("./ConvertLib.sol");
-var MetaCoin = artifacts.require("./MetaCoin.sol");
+var NOUSToken = artifacts.require("./NOUSToken.sol");
+var NOUSSale = artifacts.require("./NOUSSale.sol");
+
+var NOUSPresale = artifacts.require("./NOUSPresale.sol");
+var NOUSCrowdsale = artifacts.require("./NOUSCrowdsale.sol");
+var NOUSReservFund = artifacts.require("./NOUSReservFund.sol");
+
 
 module.exports = function(deployer) {
-  deployer.deploy(ConvertLib);
-  deployer.link(ConvertLib, MetaCoin);
-  deployer.deploy(MetaCoin);
+    deployer.deploy(NOUSSale, {gas: 6993166});
+    deployer.deploy(NOUSToken);
+    deployer.deploy([NOUSPresale, NOUSCrowdsale, NOUSReservFund]);
 };

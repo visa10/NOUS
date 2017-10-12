@@ -27,7 +27,7 @@ contract BaseContract is Ownable {
 	uint256 public targetEthMax;               // The max amount of ether the agent is allowed raise
 	uint256 public targetEthMin; // minimum amount of funds to be raised in weis
 
-	uint256 public rate; // todo  rate is bonus
+	//uint256 public rate; // todo  rate is bonus
 
 	address public wallet; // address where funds are collected Deposit address
 	uint256 public weiRaised; // amount of raised money in wei
