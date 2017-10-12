@@ -140,7 +140,8 @@ contract BaseContract is Ownable {
 		uint256 _minDeposit,
 		uint256 _maxDeposit,
 		uint256 _startTime,
-		uint256 _endTime
+		uint256 _endTime,
+		uint256 _rate
 	)
 	// Only the owner can register a new sale agent
 	public onlyOwner
@@ -166,6 +167,7 @@ contract BaseContract is Ownable {
 		newSalesAgent.maxDeposit = _maxDeposit;
 		newSalesAgent.startTime = _startTime;
 		newSalesAgent.endTime = _endTime;
+		newSalesAgent.rate = _rate;
 		newSalesAgent.isFinalized = false;
 		newSalesAgent.exists = true;
 
