@@ -96,9 +96,10 @@ contract BaseContract is Ownable {
 	}
 
 	/// @dev constructor
-	function BaseContract(){
+	function BaseContract(address _wallet){
+		wallet = _wallet;
 		if (address(token) == 0x0) {
-			token = createTokenContract();
+			//token = createTokenContract();
 		}
 	}
 

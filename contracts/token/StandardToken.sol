@@ -19,15 +19,6 @@ contract StandardToken is ERC20, BasicToken {
 
 	mapping (address => mapping (address => uint256)) allowed;
 
-	bool public endICO = false;
-
-	event TransferStart();
-
-	modifier canTransfer(){
-		require(endICO);
-		_;
-	}
-
 	/**
 	* @dev Transfer tokens from one address to another
 	* @param _from address The address which you want to send tokens from
@@ -103,6 +94,7 @@ contract StandardToken is ERC20, BasicToken {
 	*/
 	function increaseApproval (address _spender, uint _addedValue)
 	  canTransfer
+	  public
 	  returns (bool success) {
 		allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
 		Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
@@ -111,6 +103,7 @@ contract StandardToken is ERC20, BasicToken {
 
 	function decreaseApproval (address _spender, uint _subtractedValue)
 		canTransfer
+		public
 		returns (bool success) {
 		uint oldValue = allowed[msg.sender][_spender];
 		if (_subtractedValue > oldValue) {

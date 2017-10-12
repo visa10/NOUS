@@ -44,16 +44,9 @@ contract MintableToken is StandardToken, Ownable {
 	*/
 	function finishMinting() onlyOwner public returns (bool) {
 		mintingFinished = true;
+		finishICO();
 		MintFinished();
 		return true;
 	}
 
-	/**
-	* @dev allowed transfer
-	*/
-	function startTransfer() onlyOwner public returns (bool){
-		endICO = true;
-		TransferStart();
-		return true;
-	}
 }

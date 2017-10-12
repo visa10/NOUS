@@ -16,7 +16,7 @@ contract RefundableCrowdsale is Crowdsale {
 	RefundVault public vault;
 
 	function RefundableCrowdsale() {
-		require(targetEthMin > 0);
+		//require(_targetEthMin > 0);
 
 		if (address(vault) == 0x0) {
 			vault = createRefundVault();
