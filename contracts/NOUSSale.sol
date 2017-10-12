@@ -9,7 +9,7 @@ contract NOUSSale is Crowdsale {
 
 	//wallet = 0xdd870fa1b7c4700f2bd7f44238821c26f7392148; // todo add address wallet amount
 
-	function NOUSSale(address _wallet, address _token)
+	function NOUSSale(address _wallet)
 	BaseContract(_wallet)
 	{
 		//777 Million tokens
@@ -25,7 +25,7 @@ contract NOUSSale is Crowdsale {
 		targetEthMin = 5500  * (1 ether);
 		//rate = 6400;
 		
-		token = MintableToken(_token);
+		//token = MintableToken(_token);
 
 		//TODO Set Real address
 		// 20% Will Be Retained by Nousplatform
