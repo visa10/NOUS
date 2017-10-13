@@ -221,12 +221,10 @@ contract BaseContract is Ownable {
 	}
 
 	function checkActiveSale() internal returns (bool){
-		uint256 i = salesAgentsAddresses.length;
-		while (i > 0) {
+		for (uint256 i=0; i<salesAgentsAddresses.length; i++){
 			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
 				return true;
 			}
-			i--;
 		}
 		return false;
 	}
