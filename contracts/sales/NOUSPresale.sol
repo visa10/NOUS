@@ -34,7 +34,6 @@ contract NOUSPresale is SalesAgent {
 		} else {
 			TokenPurchase(this, msg.sender, msg.value, tokens);
 		}
-	}
-
+	} 
 
 }

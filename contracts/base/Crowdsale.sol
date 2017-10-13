@@ -49,7 +49,6 @@ contract Crowdsale is BaseContract {
 
 	/// @dev Validate state contract
 	function validateStateSaleContract(address _salesAgent) public returns (bool) {
-		timeNow = now;
 		return salesAgents[_salesAgent].isFinalized == false // No minting if the sale contract has finalised
 		&& now > salesAgents[_salesAgent].startTime //
 		&& now < salesAgents[_salesAgent].endTime; // within time
@@ -75,7 +74,7 @@ contract Crowdsale is BaseContract {
 
 	/// @return true if crowdsale event has ended and call super.hasEnded
 	function hasEnded(address _salesAgent) public constant returns (bool) {
-		salesAgents[_salesAgent].tokensMinted >= salesAgents[_salesAgent].tokensLimit //capReachedToken
+		return salesAgents[_salesAgent].tokensMinted >= salesAgents[_salesAgent].tokensLimit //capReachedToken
 		|| weiRaised >= targetEthMax //capReachedWei
 		|| totalSupplyCap >= token.totalSupply()
 		|| now > salesAgents[_salesAgent].endTime; //timeAllow
@@ -95,9 +94,9 @@ contract Crowdsale is BaseContract {
 	}
 
 	/// @dev global finalization is activate this function all sales wos stoped.
-	function finalizeICO() ownerOrSale() public returns(bool)  {
+	function finalizeICO(address _salesAgent) ownerOrSale() public returns(bool)  {
 		require(!isGlobalFinalized);
-		require(hasEnded(msg.sender));
+		require(salesAgents[_salesAgent].isFinalized == true);
 
 		if (goalReached()) {
 			vault.close(); // close vault contract and send ETH to Wallet

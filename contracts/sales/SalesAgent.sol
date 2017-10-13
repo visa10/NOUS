@@ -58,7 +58,7 @@ contract SalesAgent is Ownable{
 	function finaliseFunding() onlyOwner {
 
 		// Do some common contribution validation, will throw if an error occurs - address calling this should match the deposit address
-		if (nousTokenSale.finalizeSaleContract(msg.sender)) {
+		if (nousTokenSale.finalizeSaleContract(this)) {
 			uint256 tokenMinted = nousTokenSale.getSaleContractTokensMinted(this);
 			FinaliseSale(this, msg.sender, tokenMinted);
 		}

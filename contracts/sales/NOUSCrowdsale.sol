@@ -51,7 +51,7 @@ contract NOUSCrowdsale is SalesAgent {
 	}
 
 	function globalFinalizationStartBonusPayable() onlyOwner {
-		nousTokenSale.finalizeICO();
+		nousTokenSale.finalizeICO(this);
 	}
 
 	/**

@@ -23,7 +23,7 @@ contract BaseContract is Ownable {
 	SaleState public saleState;
 
 	uint8 public constant decimals = 18;
-	uint256 public exponent = 10**uint256(decimals);
+	//uint256 public exponent = 10**uint256(decimals);
 
 	/**** Properties ***********/
 
@@ -154,7 +154,7 @@ contract BaseContract is Ownable {
 		require(_tokensLimit > 0 && _tokensLimit <= totalSupplyCap);
 		// Make sure the min deposit is less than or equal to the max
 		//require(_minDeposit <= _maxDeposit);
-		require(_startTime >= now);
+		//require(_startTime >= now);
 		require(_endTime > _startTime);
 		// Add the new sales contract
 		SalesAgent memory newSalesAgent;
