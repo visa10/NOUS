@@ -14,6 +14,7 @@ import "../interfaces/SalesAgentInterface.sol";
  */
 contract Crowdsale is BaseContract {
 
+	uint256 timeNow;
 	/**
 	* event for token purchase logging
 	* @param purchaser who paid for the tokens
@@ -48,6 +49,7 @@ contract Crowdsale is BaseContract {
 
 	/// @dev Validate state contract
 	function validateStateSaleContract(address _salesAgent) public returns (bool) {
+		timeNow = now;
 		return salesAgents[_salesAgent].isFinalized == false // No minting if the sale contract has finalised
 		&& now > salesAgents[_salesAgent].startTime //
 		&& now < salesAgents[_salesAgent].endTime; // within time
@@ -67,7 +69,7 @@ contract Crowdsale is BaseContract {
 		return _value > 0
 		&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
 		&& _value >= salesAgents[msg.sender].minDeposit // Is it above the min deposit amount?
-		&& _value <= salesAgents[msg.sender].maxDeposit
+		//&& _value <= salesAgents[msg.sender].maxDeposit
 		&& weiRaised.add(_value) <= targetEthMax; // Does this deposit put it over the max target ether for the sale contract?
 	}
 

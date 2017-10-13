@@ -75,7 +75,7 @@ contract BaseContract is Ownable {
 		uint256 tokensMinted;               // The current amount of tokens minted by this agent
 		uint256 rate;						// default rate
 		uint256 minDeposit;                 // The minimum deposit amount allowed
-		uint256 maxDeposit;                 // The maximum deposit amount allowed
+		//uint256 maxDeposit;                 // The maximum deposit amount allowed
 		uint256 startTime;                  // The start time (unix format) when allowed to mint tokens
 		uint256 endTime;                    // The end time from unix format when to finish minting tokens
 		bool isFinalized;                   // Has this sales contract been completed and the ether sent to the deposit address?
@@ -130,7 +130,6 @@ contract BaseContract is Ownable {
 	/// @param _saleContractType Type of the contract ie. presale, crowdsale, quarterly
 	/// @param _tokensLimit The maximum amount of tokens this sale contract is allowed to distribute
 	/// @param _minDeposit The minimum deposit amount allowed
-	/// @param _maxDeposit The maximum deposit amount allowed
 	/// @param _startTime The start block when allowed to mint tokens
 	/// @param _endTime The end block when to finish minting tokens
 	function setSaleAgentContract(
@@ -138,7 +137,7 @@ contract BaseContract is Ownable {
 		bytes32 _saleContractType,
 		uint256 _tokensLimit,
 		uint256 _minDeposit,
-		uint256 _maxDeposit,
+		//uint256 _maxDeposit,
 		uint256 _startTime,
 		uint256 _endTime,
 		uint256 _rate
@@ -154,7 +153,7 @@ contract BaseContract is Ownable {
 		// Must have some available tokens
 		require(_tokensLimit > 0 && _tokensLimit <= totalSupplyCap);
 		// Make sure the min deposit is less than or equal to the max
-		require(_minDeposit <= _maxDeposit);
+		//require(_minDeposit <= _maxDeposit);
 		require(_startTime >= now);
 		require(_endTime > _startTime);
 		// Add the new sales contract
@@ -164,7 +163,7 @@ contract BaseContract is Ownable {
 		newSalesAgent.tokensLimit = _tokensLimit;
 		newSalesAgent.tokensMinted = 0;
 		newSalesAgent.minDeposit = _minDeposit;
-		newSalesAgent.maxDeposit = _maxDeposit;
+		//newSalesAgent.maxDeposit = _maxDeposit;
 		newSalesAgent.startTime = _startTime;
 		newSalesAgent.endTime = _endTime;
 		newSalesAgent.rate = _rate;
@@ -197,7 +196,7 @@ contract BaseContract is Ownable {
 
 	// validate goal
 	function goalReached() public constant returns (bool) {
-		return weiRaised < targetEthMin;
+		return weiRaised > targetEthMin;
 	}
 
 	// if crowdsale is unsuccessful, investors can claim refunds here
