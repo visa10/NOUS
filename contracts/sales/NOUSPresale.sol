@@ -4,6 +4,12 @@ import "./SalesAgent.sol";
 import "../lib/SafeMath.sol";
 import "../NOUSSale.sol";
 
+
+import "./NOUSCrowdsale.sol";
+import "./NOUSReservFund.sol";
+
+
+
 contract NOUSPresale is SalesAgent {
 
   	using SafeMath for uint;

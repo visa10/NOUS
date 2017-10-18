@@ -55,7 +55,7 @@ contract Crowdsale is BaseContract {
 	}
 
 	/// @dev Validate Mined tokens
-	function validPurchase(address _agent, uint _tokens) isSalesContract(msg.sender) returns (bool) {
+	function validPurchase(address _agent, uint _tokens) public returns (bool) {
 		return _tokens > 0 // non zero
 		&& salesAgents[_agent].tokensLimit >= salesAgents[_agent].tokensMinted.add(_tokens) // within Tokens mined
 		&& totalSupplyCap >= token.totalSupply().add(_tokens);
@@ -202,7 +202,7 @@ contract Crowdsale is BaseContract {
 
 	function withdraw(uint256 _amount) onlyOwner public{
 		require(_amount > 0);
-		vault.withdraw(_amount);
+		vault.withdraw(_amount * 1 ether);
 	}
 
 }

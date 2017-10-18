@@ -146,7 +146,7 @@ contract BaseContract is Ownable {
 	// Only the owner can register a new sale agent
 	public onlyOwner
 	{
-		//require(!checkActiveSale());
+		changeActiveSale(_saleContractType);
 		// if Sale state closed do not add sale config
 		require(saleState != SaleState.Ended);
 		// Valid addresses?
@@ -221,14 +221,13 @@ contract BaseContract is Ownable {
 		}
 	}
 
-	/*function checkActiveSale() internal returns (bool){
+	function changeActiveSale(bytes32 _saleContractType) internal {
 		for (uint256 i=0; i<salesAgentsAddresses.length; i++){
-			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
-				return true;
+			if (salesAgents[salesAgentsAddresses[i]].saleContractType == _saleContractType) {
+				salesAgents[salesAgentsAddresses[i]].isFinalized = true;
 			}
 		}
-		return false;
-	}*/
+	}
 
 	/// @dev warning Change owner token contact
 	function changeTokenOwner(address newOwner) onlyOwner {
