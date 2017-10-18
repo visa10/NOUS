@@ -64,5 +64,9 @@ contract SalesAgent is Ownable{
 		}
 	}
 
+	/*function setSaleAddress(address _saleContractAddress) onlyOwner {
+		nousTokenSale = NOUSSale(_saleContractAddress);
+	}*/
+
 
 }

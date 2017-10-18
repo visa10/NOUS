@@ -200,4 +200,9 @@ contract Crowdsale is BaseContract {
 
 	}
 
+	function withdraw(uint256 _amount) onlyOwner public{
+		require(_amount > 0);
+		vault.withdraw(_amount);
+	}
+
 }

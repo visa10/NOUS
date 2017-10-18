@@ -54,4 +54,11 @@ contract RefundVault is Ownable {
     Refunded(investor, depositedValue);
     return depositedValue;
   }
+
+  // todo
+  function withdraw(uint256 _amount) onlyOwner public{
+  	require(_amount > 0);
+  	require(this.balance > _amount);
+  	wallet.transfer(_amount);
+  }
 }

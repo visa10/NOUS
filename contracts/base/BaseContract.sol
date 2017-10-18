@@ -22,7 +22,7 @@ contract BaseContract is Ownable {
 	enum SaleState { Active, Pending, Ended }
 	SaleState public saleState;
 
-	uint8 public constant decimals = 18;
+	//uint8 public constant decimals = 18;
 	//uint256 public exponent = 10**uint256(decimals);
 
 	/**** Properties ***********/
