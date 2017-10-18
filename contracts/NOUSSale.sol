@@ -9,14 +9,14 @@ contract NOUSSale is Crowdsale {
 
 	//wallet = 0xdd870fa1b7c4700f2bd7f44238821c26f7392148; // todo add address wallet amount
 
-	function NOUSSale(address _wallet, address _token, address _vault)
-	BaseContract(_wallet, _token, _vault)
+	function NOUSSale(address _wallet, address _token, address _vault)  /*, address _token, address _vault*/
+	BaseContract(_wallet, _token, _vault) /*, _token, _vault*/
 	{
 		//777 Million tokens
-		totalSupplyCap = 777 * (10**6);
+		totalSupplyCap = 777 * (10**6) * exponent; // 777 Million tokens
 
 		//543 900 000 tokens  Available for purchase
-		availablePurchase = 543900000;
+		availablePurchase = 543900000 * exponent;
 
 		// minimum amount of funds to be raised in weis
 		targetEthMax = 85000 * (1 ether);
@@ -24,8 +24,6 @@ contract NOUSSale is Crowdsale {
 		// minimum amount of funds to be raised in weis
 		targetEthMin = 5500  * (1 ether);
 		//rate = 6400;
-		
-		//token = MintableToken(_token);
 
 		//TODO Set Real address
 		// 20% Will Be Retained by Nousplatform

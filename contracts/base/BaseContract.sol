@@ -22,8 +22,8 @@ contract BaseContract is Ownable {
 	enum SaleState { Active, Pending, Ended }
 	SaleState public saleState;
 
-	//uint8 public constant decimals = 18;
-	//uint256 public exponent = 10**uint256(decimals);
+	uint8 public constant decimals = 18;
+	uint256 public exponent = 10**uint256(decimals);
 
 	/**** Properties ***********/
 
@@ -45,7 +45,6 @@ contract BaseContract is Ownable {
 
 	event PayBounty(address _agent, address _wallet, bytes32 _name, uint256 _amount);
 
-	event SaleFinalised(address _agent, address _address, uint256 _value);
 
 	struct Bounty {
 		address wallet; // wallet address for transfer
@@ -105,22 +104,24 @@ contract BaseContract is Ownable {
 		wallet = _wallet;
 
 		if (address(token) == 0x0) {
-			token = MintableToken(_token); //createTokenContract();
+			token = createTokenContract(_token);
 		}
 
 		if (address(vault) == 0x0) {
-			vault = RefundVault(_vault); // createRefundVault();
+			vault = createRefundVault(_vault);
 		}
 	}
 
 	// creates the token to be sold.
 	// override this method to have crowdsale of a specific mintable token.
-	function createTokenContract() internal returns (MintableToken) {
-		return new NOUSToken();
+	function createTokenContract(address _token) internal returns (MintableToken) {
+		//return new NOUSToken();
+		return MintableToken(_token);
 	}
 
-	function createRefundVault() internal returns (RefundVault){
-		return new RefundVault(wallet);
+	function createRefundVault(address _vault) internal returns (RefundVault){
+		//return new RefundVault(_wallet);
+		return RefundVault(_vault);
 	}
 
 	//**************Setters*****************//
@@ -145,7 +146,7 @@ contract BaseContract is Ownable {
 	// Only the owner can register a new sale agent
 	public onlyOwner
 	{
-		require(!checkActiveSale());
+		//require(!checkActiveSale());
 		// if Sale state closed do not add sale config
 		require(saleState != SaleState.Ended);
 		// Valid addresses?
@@ -160,7 +161,7 @@ contract BaseContract is Ownable {
 		SalesAgent memory newSalesAgent;
 		newSalesAgent.saleContractAddress = _saleAddress;
 		newSalesAgent.saleContractType = _saleContractType;
-		newSalesAgent.tokensLimit = _tokensLimit;
+		newSalesAgent.tokensLimit = _tokensLimit * exponent;
 		newSalesAgent.tokensMinted = 0;
 		newSalesAgent.minDeposit = _minDeposit;
 		//newSalesAgent.maxDeposit = _maxDeposit;
@@ -211,7 +212,7 @@ contract BaseContract is Ownable {
 	//****************Manager*******************//
 
 	/// @dev stop sale
-	function PendingActiveSale() onlyOwner {
+	function pendingActiveSale() onlyOwner {
 		require(saleState != SaleState.Ended);
 		if (saleState == SaleState.Pending){
 			saleState = SaleState.Active;
@@ -220,14 +221,14 @@ contract BaseContract is Ownable {
 		}
 	}
 
-	function checkActiveSale() internal returns (bool){
+	/*function checkActiveSale() internal returns (bool){
 		for (uint256 i=0; i<salesAgentsAddresses.length; i++){
 			if (salesAgents[salesAgentsAddresses[i]].isFinalized == true){
 				return true;
 			}
 		}
 		return false;
-	}
+	}*/
 
 	/// @dev warning Change owner token contact
 	function changeTokenOwner(address newOwner) onlyOwner {

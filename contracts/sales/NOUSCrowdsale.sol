@@ -36,7 +36,7 @@ contract NOUSCrowdsale is SalesAgent {
 		assert(rate != 0);
 
 		// calculate tokens - get bonus rate
-		uint256 tokens = weiAmount.mul(rate).div(1 ether);
+		uint256 tokens = weiAmount.mul(rate);
 
 		require(nousTokenSale.validPurchase(this, tokens)); // require tokens
 
@@ -90,7 +90,7 @@ contract NOUSCrowdsale is SalesAgent {
 		for (uint256 i = 0; i < bonusRates.length; i++){
 			uint256 toPeriod = nousTokenSale.getSaleContractStartTime(this);
 			for (uint256 w = 0; w < bonusRates[i].period; w++) {
-				toPeriod = toPeriod + (1 weeks);
+				toPeriod = toPeriod + (1 weeks); // TODO FOR TESTING (1 weeks)
 			}
 			if (now < toPeriod){
 				return bonusRates[i].rate;

@@ -76,7 +76,7 @@ contract Crowdsale is BaseContract {
 	function hasEnded(address _salesAgent) public constant returns (bool) {
 		return salesAgents[_salesAgent].tokensMinted >= salesAgents[_salesAgent].tokensLimit //capReachedToken
 		|| weiRaised >= targetEthMax //capReachedWei
-		|| totalSupplyCap >= token.totalSupply()
+		|| totalSupplyCap <= token.totalSupply()
 		|| now > salesAgents[_salesAgent].endTime; //timeAllow
 	}
 

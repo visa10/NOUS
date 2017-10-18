@@ -22,7 +22,7 @@ contract NOUSPresale is SalesAgent {
 
 		uint256 rate = nousTokenSale.getSaleContractTokensRate(this);
 		// calculate tokens - get bonus rate
-		uint256 tokens = weiAmount.mul(rate).div(1 ether);
+		uint256 tokens = weiAmount.mul(rate);
 
 		require(nousTokenSale.validPurchase(this, tokens)); // require tokens
 
