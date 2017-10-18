@@ -101,15 +101,15 @@ contract BaseContract is Ownable {
 	//****************Constructors*******************//
 
 	/// @dev constructor
-	function BaseContract(address _wallet){
+	function BaseContract(address _wallet, address _token, address _vault){
 		wallet = _wallet;
 
 		if (address(token) == 0x0) {
-			token = createTokenContract();
+			token = MintableToken(_token); //createTokenContract();
 		}
 
 		if (address(vault) == 0x0) {
-			vault = createRefundVault();
+			vault = RefundVault(_vault); // createRefundVault();
 		}
 	}
 

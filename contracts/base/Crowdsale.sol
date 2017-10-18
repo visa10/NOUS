@@ -66,7 +66,7 @@ contract Crowdsale is BaseContract {
 	/// @return A boolean that indicates if the operation was successful.
 	function validateContribution(uint256 _value) isSalesContract(msg.sender) returns (bool) {
 		return _value > 0
-		&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
+		//&& wallet != 0x0 // Check the depositAddress has been verified by the account holder
 		&& _value >= salesAgents[msg.sender].minDeposit // Is it above the min deposit amount?
 		//&& _value <= salesAgents[msg.sender].maxDeposit
 		&& weiRaised.add(_value) <= targetEthMax; // Does this deposit put it over the max target ether for the sale contract?

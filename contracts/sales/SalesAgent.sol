@@ -5,7 +5,7 @@ import "../base/Ownable.sol";
 
 contract SalesAgent is Ownable{
 
-    address saleContractAddress;                           // Main contract token address
+    //address saleContractAddress;                           // Main contract token address
 
     NOUSSale nousTokenSale; // contract nous sale
 
