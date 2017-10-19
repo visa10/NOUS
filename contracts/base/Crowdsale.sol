@@ -120,6 +120,7 @@ contract Crowdsale is BaseContract {
 	/**
 	* @dev Function to send NOUS to presale investors
 	* Can only be called while the presale is not over.
+	* @param _salesAgent addresses sale agent
 	* @param _batchOfAddresses list of addresses
 	* @param _amountOf matching list of address balances
 	*/

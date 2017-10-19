@@ -26,11 +26,7 @@ contract NOUSSale is Crowdsale {
 		targetEthMin = 4  * (1 ether);
 		//rate = 6400;
 
-		/// _walletAddress
-		/// _name
-		/// _percent
-		/// _delay
-		/// _periodPathOfPay
+
 		// 20% Will Be Retained by Nousplatform
 		// Nousplatform retained tokens are locked for the first 4 months, and will be vested over a period of 20 months total,
 		// 5% every month. The total vesting period is 24 months.
