@@ -22,23 +22,17 @@ module.exports = function(deployer) {
             .then(function(instances) {
                 console.log("NOUSToken:", instances[0].address);
                 console.log("RefundVault:", instances[1].address);
-                return NOUSSale.new(wallet, instances[0].address, instances[1].address);
+
+                var instanceNousSale = NOUSSale.new(wallet, instances[0].address, instances[1].address);
+
+                instances[0].transferOwnership(instanceNousSale.address);
+                instances[1].transferOwnership(instanceNousSale.address);
+
+                return instanceNousSale.address;
             })
-            .then(function (nousSaleInst) {
-                var newSale = nousSaleInst.address;
-
-                console.log("NOUSSale:", newSale);
-                deployer.deploy([[NOUSPresale, newSale], [NOUSCrowdsale, newSale], [NOUSReservFund, newSale]])
-                    .then(function () {
-                        /*NOUSToken.at().then(function (ntInstance) {
-                            ntInstance.transferOwnership(newSale);
-                            console.log("tranfer")
-                        });
-                        RefundVault.ar().then(function (rvInstance) {
-                            rvInstance.transferOwnership(newSale)
-                        });*/
-                    });
-
+            .then(function (nousSaleSddr) {
+                console.log("NOUSSale:", nousSaleSddr);
+                deployer.deploy([[NOUSPresale, nousSaleSddr], [NOUSCrowdsale, nousSaleSddr], [NOUSReservFund, nousSaleSddr]]);
             })
 
 

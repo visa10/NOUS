@@ -148,7 +148,7 @@ contract BaseContract is Ownable {
 	// Only the owner can register a new sale agent
 	public onlyOwner
 	{
-		uint256 tokensMinted = changeActiveSale(_saleContractType);
+		uint256 _tokensMinted = changeActiveSale(_saleContractType);
 		// if Sale state closed do not add sale config
 		require(saleState != SaleState.Ended);
 		// Valid addresses?
@@ -172,6 +172,7 @@ contract BaseContract is Ownable {
 		newSalesAgent.rate = _rate;
 		newSalesAgent.isFinalized = false;
 		newSalesAgent.exists = true;
+		newSalesAgent.tokensMinted = _tokensMinted;
 
 		//newSalesAgent.bonusRates = new BonusRateStruct[](0); // after sale start global finalize
 		salesAgents[_saleAddress] = newSalesAgent;
