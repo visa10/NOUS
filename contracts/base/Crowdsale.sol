@@ -180,16 +180,19 @@ contract Crowdsale is BaseContract {
 		{
 			uint256 dateDelay = salesAgents[msg.sender].startTime;
 
+			// todo WARNING  For test sets minutes
 			// calculate date delay  1 month = 30 dey
 			for (uint256 p; p < bountyPayment[i].delay; p++){
-				dateDelay = dateDelay + (30 days);
+				//dateDelay = dateDelay + (30 days);
+				dateDelay = dateDelay + (2 minutes);
 			}
 
 			// set last date payaout
 			if ( bountyPayment[i].timeLastPayout == 0 ){
 				delayNextTime = dateDelay;
 			} else {
-				delayNextTime = bountyPayment[i].timeLastPayout + (30 days);
+				//delayNextTime = bountyPayment[i].timeLastPayout + (30 days); // todo minutes
+				delayNextTime = bountyPayment[i].timeLastPayout + (2 minutes); // todo minutes
 			}
 
 			// delay bonuses
@@ -198,7 +201,7 @@ contract Crowdsale is BaseContract {
 				&& now >= delayNextTime)
 			{
 				uint256 payout = bountyPayment[i].amountReserve.div(bountyPayment[i].periodPathOfPay);
-				token.transferFrom(this, bountyPayment[i].wallet, payout);
+				token.transfer(bountyPayment[i].wallet, payout); // transfer bonuses
 				bountyPayment[i].totalPayout = bountyPayment[i].totalPayout.add(payout);
 				bountyPayment[i].timeLastPayout = delayNextTime;
 			}
