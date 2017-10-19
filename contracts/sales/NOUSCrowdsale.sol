@@ -51,27 +51,8 @@ contract NOUSCrowdsale is SalesAgent {
 		}
 	}
 
-	function globalFinalizationStartBonusPayable() onlyOwner {
+	/*function globalFinalizationStartBonusPayable() onlyOwner {
 		nousTokenSale.finalizeICO(this);
-	}
-
-	/**
-		@dev computes the number of tokens that should be issued for a given contribution
-		@param _contribution    contribution amount
-		@return computed number of tokens
-	*/
-	/*function getTotalAmountOfTokens(uint256 _contribution) public constant returns (uint256 amountOfTokens) {
-		uint256 currentTokenRate = 0;
-		if (now < week2Start) {
-			return currentTokenRate = safeMul(_contribution, 6000);
-		} else if (now < week3Start) {
-			return currentTokenRate = safeMul(_contribution, 5000);
-		} else if (now < week4Start) {
-			return currentTokenRate = safeMul(_contribution, 4000);
-		} else {
-			return currentTokenRate = safeMul(_contribution, 3000);
-		}
-
 	}*/
 
 	/// @dev addBonusRate adding bonuses foe weeks period

@@ -22,10 +22,15 @@ contract NOUSSale is Crowdsale {
 		targetEthMax = 85000 * (1 ether);
 
 		// minimum amount of funds to be raised in weis
-		targetEthMin = 5500  * (1 ether);
+		targetEthMin = //5500  * (1 ether); // todo For test uncoment
+		targetEthMin = 4  * (1 ether);
 		//rate = 6400;
 
-		//TODO Set Real address
+		/// _walletAddress
+		/// _name
+		/// _percent
+		/// _delay
+		/// _periodPathOfPay
 		// 20% Will Be Retained by Nousplatform
 		// Nousplatform retained tokens are locked for the first 4 months, and will be vested over a period of 20 months total,
 		// 5% every month. The total vesting period is 24 months.

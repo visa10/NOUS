@@ -35,7 +35,7 @@ contract BaseContract is Ownable {
 	address public wallet; // address where funds are collected Deposit address
 	uint256 public weiRaised; // amount of raised money in wei
 
-	bool isGlobalFinalized = false; // global finalization
+	//bool public isGlobalFinalized = false; // global finalization
 
 	/**** Events ***********/
 
@@ -148,7 +148,7 @@ contract BaseContract is Ownable {
 	// Only the owner can register a new sale agent
 	public onlyOwner
 	{
-		changeActiveSale(_saleContractType);
+		uint256 tokensMinted = changeActiveSale(_saleContractType);
 		// if Sale state closed do not add sale config
 		require(saleState != SaleState.Ended);
 		// Valid addresses?
@@ -223,14 +223,16 @@ contract BaseContract is Ownable {
 		}
 	}
 
-	function changeActiveSale(SaleContractType _saleContractType) internal {
+	function changeActiveSale(SaleContractType _saleContractType) internal returns(uint256) {
 		for (uint256 i=0; i<salesAgentsAddresses.length; i++){
 			if (salesAgents[salesAgentsAddresses[i]].saleContractType == _saleContractType
 				&& salesAgents[salesAgentsAddresses[i]].isFinalized == false)
 				{
 					salesAgents[salesAgentsAddresses[i]].isFinalized = true;
+					return salesAgents[salesAgentsAddresses[i]].tokensMinted;
 				}
 		}
+		return 0;
 	}
 
 	/// @dev warning Change owner token contact

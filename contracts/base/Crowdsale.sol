@@ -74,10 +74,11 @@ contract Crowdsale is BaseContract {
 
 	/// @return true if crowdsale event has ended and call super.hasEnded
 	function hasEnded(address _salesAgent) public constant returns (bool) {
-		return salesAgents[_salesAgent].tokensMinted >= salesAgents[_salesAgent].tokensLimit //capReachedToken
-		|| weiRaised >= targetEthMax //capReachedWei
-		|| totalSupplyCap <= token.totalSupply()
-		|| now > salesAgents[_salesAgent].endTime; //timeAllow
+		return salesAgents[_salesAgent].exists == true
+			&& (salesAgents[_salesAgent].tokensMinted >= salesAgents[_salesAgent].tokensLimit //capReachedToken
+			  || weiRaised >= targetEthMax //capReachedWei
+			  || totalSupplyCap <= token.totalSupply()
+			  || now > salesAgents[_salesAgent].endTime); //timeAllow
 	}
 
 	//*******************Finalize*****************//
@@ -95,19 +96,22 @@ contract Crowdsale is BaseContract {
 
 	/// @dev global finalization is activate this function all sales wos stoped.
 	function finalizeICO(address _salesAgent) ownerOrSale() public returns(bool)  {
-		require(!isGlobalFinalized);
-		require(salesAgents[_salesAgent].isFinalized == true);
+		//require(!isGlobalFinalized);
+		require(salesAgents[msg.sender].saleContractType == SaleContractType.ReserveFunds);
+		require(saleState != SaleState.Ended);
+		require(salesAgents[_salesAgent].isFinalized == false);
 
 		if (goalReached()) {
-			vault.close(); // close vault contract and send ETH to Wallet
 			reserveBonuses(); // reserve bonuses
+			vault.close(); // close vault contract and send ETH to Wallet
 		} else {
 			vault.enableRefunds();
 		}
 
-		saleState != SaleState.Ended; // close all sale
 		token.finishMinting(); // stop mining tokens
-		isGlobalFinalized = true;
+		saleState = SaleState.Ended; // close all sale
+
+		//isGlobalFinalized = true;
 		return true;
 	}
 
@@ -140,12 +144,13 @@ contract Crowdsale is BaseContract {
 	*/
 	function deliverTokenToClient(address _salesAgent, address _accountHolder, uint256 _amountOf) ownerOrSale public returns(bool){
 		require(_accountHolder != 0x0);
-		require(validPurchase(_salesAgent, _amountOf));
+		uint256 _tokens = _amountOf.mul(exponent);
+		require(validPurchase(_salesAgent, _tokens));
 
-		token.mint(_accountHolder, _amountOf);
-		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(_amountOf);
+		token.mint(_accountHolder, _tokens);
+		salesAgents[msg.sender].tokensMinted = salesAgents[msg.sender].tokensMinted.add(_tokens);
 
-		TokenPurchase(msg.sender, _accountHolder, 0, _amountOf);
+		TokenPurchase(msg.sender, _accountHolder, 0, _tokens);
 		return true;
 	}
 
@@ -153,8 +158,6 @@ contract Crowdsale is BaseContract {
 
 	/// @dev reserve all bounty on this NOUSSale address contract
 	function reserveBonuses() internal {
-		require(saleState != SaleState.Ended);
-		require(salesAgents[msg.sender].saleContractType == SaleContractType.ReserveFunds);
 
 		uint256 totalSupply = token.totalSupply();
 
@@ -177,22 +180,26 @@ contract Crowdsale is BaseContract {
 		{
 			uint256 dateDelay = salesAgents[msg.sender].startTime;
 
+			// calculate date delay  1 month = 30 dey
 			for (uint256 p; p < bountyPayment[i].delay; p++){
 				dateDelay = dateDelay + (30 days);
 			}
 
+			// set last date payaout
 			if ( bountyPayment[i].timeLastPayout == 0 ){
 				delayNextTime = dateDelay;
 			} else {
 				delayNextTime = bountyPayment[i].timeLastPayout + (30 days);
 			}
 
+			// delay bonuses
 			if (now >= dateDelay
 				&& bountyPayment[i].amountReserve > bountyPayment[i].totalPayout
 				&& now >= delayNextTime)
 			{
 				uint256 payout = bountyPayment[i].amountReserve.div(bountyPayment[i].periodPathOfPay);
 				token.transferFrom(this, bountyPayment[i].wallet, payout);
+				bountyPayment[i].totalPayout = bountyPayment[i].totalPayout.add(payout);
 				bountyPayment[i].timeLastPayout = delayNextTime;
 			}
 		}
