@@ -67,9 +67,11 @@ contract BaseContract is Ownable {
 		uint256 rate;
 	}*/
 
+	enum SaleContractType { Presale, Crowdsale, ReserveFunds }
+
 	struct SalesAgent {                     // These are contract addresses that are authorised to mint tokens
 		address saleContractAddress;        // Address of the contract
-		bytes32 saleContractType;           // Type of the contract ie. presale, crowdsale, reserve_funds
+		SaleContractType saleContractType;   // Type of the contract ie. presale, crowdsale, reserve_funds
 		uint256 tokensLimit;                // The maximum amount of tokens this sale contract is allowed to distribute
 		uint256 tokensMinted;               // The current amount of tokens minted by this agent
 		uint256 rate;						// default rate
@@ -135,7 +137,7 @@ contract BaseContract is Ownable {
 	/// @param _endTime The end block when to finish minting tokens
 	function setSaleAgentContract(
 		address _saleAddress,
-		bytes32 _saleContractType,
+		SaleContractType _saleContractType,
 		uint256 _tokensLimit,
 		uint256 _minDeposit,
 		//uint256 _maxDeposit,
@@ -221,11 +223,13 @@ contract BaseContract is Ownable {
 		}
 	}
 
-	function changeActiveSale(bytes32 _saleContractType) internal {
+	function changeActiveSale(SaleContractType _saleContractType) internal {
 		for (uint256 i=0; i<salesAgentsAddresses.length; i++){
-			if (salesAgents[salesAgentsAddresses[i]].saleContractType == _saleContractType) {
-				salesAgents[salesAgentsAddresses[i]].isFinalized = true;
-			}
+			if (salesAgents[salesAgentsAddresses[i]].saleContractType == _saleContractType
+				&& salesAgents[salesAgentsAddresses[i]].isFinalized == false)
+				{
+					salesAgents[salesAgentsAddresses[i]].isFinalized = true;
+				}
 		}
 	}
 

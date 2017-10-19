@@ -154,7 +154,7 @@ contract Crowdsale is BaseContract {
 	/// @dev reserve all bounty on this NOUSSale address contract
 	function reserveBonuses() internal {
 		require(saleState != SaleState.Ended);
-		require(salesAgents[msg.sender].saleContractType == 'reserve_funds');
+		require(salesAgents[msg.sender].saleContractType == SaleContractType.ReserveFunds);
 
 		uint256 totalSupply = token.totalSupply();
 
@@ -168,7 +168,7 @@ contract Crowdsale is BaseContract {
 
 	// @dev start only minet close
 	function payDelayBonuses() public isSalesContract(msg.sender) {
-		require(salesAgents[msg.sender].saleContractType == 'reserve_funds');
+		require(salesAgents[msg.sender].saleContractType == SaleContractType.ReserveFunds);
 		require(saleState == SaleState.Ended);
 
 		uint256 delayNextTime = 0;
@@ -195,9 +195,7 @@ contract Crowdsale is BaseContract {
 				token.transferFrom(this, bountyPayment[i].wallet, payout);
 				bountyPayment[i].timeLastPayout = delayNextTime;
 			}
-
 		}
-
 	}
 
 	function withdraw(uint256 _amount) onlyOwner public{

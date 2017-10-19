@@ -55,7 +55,7 @@ contract RefundVault is Ownable {
     return depositedValue;
   }
 
-  // todo
+  //
   function withdraw(uint256 _amount) onlyOwner public{
   	require(_amount > 0);
   	require(this.balance > _amount);
